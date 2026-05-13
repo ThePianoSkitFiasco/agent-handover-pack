@@ -22,6 +22,7 @@
       --teal: #46d7c9;
       --pink: #ff93c4;
       --orange: #ffb15e;
+      --violet: #c3a0ff;
       --shadow: rgba(115, 79, 47, 0.12);
       --radius: 28px;
       --font: "Trebuchet MS", "Verdana", sans-serif;
@@ -64,8 +65,8 @@
     }
 
     .hero,
-    .prompt-card,
-    .advanced {
+    .section-panel,
+    .prompt-card {
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), var(--panel));
@@ -115,7 +116,7 @@
     }
 
     .tagline {
-      max-width: 64ch;
+      max-width: 70ch;
       margin-top: 12px;
       color: var(--muted);
       line-height: 1.6;
@@ -181,33 +182,44 @@
       line-height: 1.45;
     }
 
-    .advanced {
+    .section-panel {
       margin-bottom: 16px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 253, 251, 0.94));
     }
 
-    .advanced summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 18px;
-      font-size: 1.06rem;
-      font-weight: 900;
-      background: linear-gradient(90deg, rgba(123, 226, 125, 0.18), rgba(110, 210, 255, 0.12), rgba(255, 147, 196, 0.14));
-      border-bottom: 1px solid rgba(100, 76, 55, 0.1);
+    .section-head {
+      padding: 18px 18px 0;
     }
 
-    .advanced summary::-webkit-details-marker {
-      display: none;
+    .section-head h2 {
+      font-size: 1.5rem;
+      line-height: 1.15;
     }
 
-    .advanced-body {
+    .section-head p {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 75ch;
+    }
+
+    .section-body {
       padding: 18px;
     }
 
-    .advanced-grid {
+    .profile-panel .section-head {
+      background:
+        linear-gradient(90deg, rgba(123, 226, 125, 0.18), rgba(110, 210, 255, 0.12), rgba(255, 147, 196, 0.14));
+      border-bottom: 1px solid rgba(100, 76, 55, 0.1);
+      padding-bottom: 16px;
+    }
+
+    .profile-filters {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
       gap: 14px;
+      align-items: end;
+      margin-bottom: 14px;
     }
 
     .field {
@@ -226,7 +238,8 @@
     }
 
     input,
-    textarea {
+    textarea,
+    select {
       width: 100%;
       border: 2px solid rgba(130, 106, 90, 0.24);
       border-radius: 18px;
@@ -238,7 +251,8 @@
     }
 
     input:focus,
-    textarea:focus {
+    textarea:focus,
+    select:focus {
       outline: none;
       border-color: #ffb33f;
       box-shadow: 0 0 0 4px rgba(255, 204, 102, 0.22);
@@ -250,19 +264,155 @@
       line-height: 1.55;
     }
 
-    .grid-head {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .grid-head p {
+    .helper-text {
+      margin: 10px 0 16px;
       color: var(--muted);
       line-height: 1.55;
-      max-width: 70ch;
+      font-size: 0.96rem;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .profile-actions,
+    .starter-actions,
+    .template-actions,
+    .prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .profile-actions {
+      margin-top: 16px;
+    }
+
+    .starter-actions {
+      margin-top: 14px;
+    }
+
+    .profile-actions button,
+    .starter-actions button,
+    .template-actions button,
+    .prompt-actions button {
+      flex: 1 1 190px;
+      min-width: 0;
+    }
+
+    .starter-actions button {
+      background: linear-gradient(180deg, #ffffff 0%, #f3f7ff 100%);
+    }
+
+    .starter-actions button.home {
+      border-color: rgba(255, 143, 125, 0.35);
+      background: linear-gradient(180deg, rgba(255, 232, 203, 0.85), rgba(255, 255, 255, 0.98));
+    }
+
+    .starter-actions button.pack {
+      border-color: rgba(110, 210, 255, 0.35);
+      background: linear-gradient(180deg, rgba(226, 248, 255, 0.96), rgba(255, 255, 255, 0.98));
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .template-card {
+      padding: 16px;
+      position: relative;
+      border: 1px solid rgba(100, 76, 55, 0.14);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 252, 255, 0.92));
+      overflow: hidden;
+    }
+
+    .template-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 10px;
+      background: var(--accent);
+    }
+
+    .template-card h3 {
+      font-size: 1.12rem;
+      line-height: 1.25;
+      margin-top: 8px;
+    }
+
+    .template-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    details.preview {
+      margin-top: 14px;
+      border: 1px solid rgba(100, 76, 55, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+    }
+
+    details.preview summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 800;
+      color: #53366a;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.72), var(--preview-band));
+    }
+
+    details.preview summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .preview-body {
+      padding: 0 12px 12px;
+    }
+
+    .preview-body textarea {
+      min-height: 250px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+      font-size: 0.92rem;
+    }
+
+    .sun {
+      --accent: var(--sun);
+      --preview-band: rgba(255, 216, 77, 0.22);
+    }
+
+    .sky {
+      --accent: var(--sky);
+      --preview-band: rgba(110, 210, 255, 0.22);
+    }
+
+    .green {
+      --accent: var(--green);
+      --preview-band: rgba(123, 226, 125, 0.2);
+    }
+
+    .coral {
+      --accent: var(--coral);
+      --preview-band: rgba(255, 143, 125, 0.2);
+    }
+
+    .teal {
+      --accent: var(--teal);
+      --preview-band: rgba(70, 215, 201, 0.2);
+    }
+
+    .violet {
+      --accent: var(--violet);
+      --preview-band: rgba(195, 160, 255, 0.2);
     }
 
     .prompt-grid {
@@ -297,73 +447,17 @@
       line-height: 1.55;
     }
 
-    .prompt-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .prompt-actions button {
-      flex: 1 1 210px;
-      min-width: 0;
-    }
-
-    details.preview {
-      margin-top: 14px;
-      border: 1px solid rgba(100, 76, 55, 0.12);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.7);
-      overflow: hidden;
-    }
-
-    details.preview summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 12px 14px;
-      font-weight: 800;
-      color: #53366a;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.72), var(--preview-band));
-    }
-
-    details.preview summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .preview-body {
-      padding: 0 12px 12px;
-    }
-
-    .preview-body textarea {
-      min-height: 260px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.88);
-      font-size: 0.95rem;
-    }
-
-    .sun {
-      --accent: var(--sun);
-      --preview-band: rgba(255, 216, 77, 0.22);
-    }
-
-    .sky {
-      --accent: var(--sky);
-      --preview-band: rgba(110, 210, 255, 0.22);
-    }
-
-    .green {
-      --accent: var(--green);
-      --preview-band: rgba(123, 226, 125, 0.2);
-    }
-
-    .coral {
-      --accent: var(--coral);
-      --preview-band: rgba(255, 143, 125, 0.2);
+    @media (max-width: 980px) {
+      .template-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 860px) {
       .prompt-grid,
-      .advanced-grid {
+      .profile-grid,
+      .profile-filters,
+      .template-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -375,14 +469,19 @@
       }
 
       .hero,
-      .advanced,
+      .section-panel,
       .prompt-card {
         border-radius: 22px;
       }
 
       .hero,
-      .prompt-card,
-      .advanced-body {
+      .section-body,
+      .prompt-card {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .section-head {
         padding-left: 14px;
         padding-right: 14px;
       }
@@ -399,108 +498,260 @@
       <div class="title-row">
         <div>
           <h1>Agent Handover Pack</h1>
-          <p class="tagline">A tiny prompt-control tool for repo handoffs. Fill the optional context once, then copy the exact prompt you want the next agent to follow.</p>
+          <p class="tagline">A tiny prompt-control tool for repo handoffs. Pick a project once. The prompts and terminal commands will fill themselves.</p>
         </div>
       </div>
       <div class="hero-actions">
         <button id="copyAllBtn" class="primary" type="button">Copy All Prompts</button>
-        <button id="resetAdvancedBtn" class="coral" type="button">Reset Advanced Options</button>
       </div>
-      <p class="mini-note">Autosaves advanced options in this browser. No build step. No external libraries.</p>
+      <p class="mini-note">Single-file HTML. No external libraries. No build step. Profiles are saved in this browser.</p>
       <div id="statusLine" class="status" aria-live="polite"></div>
     </header>
 
-    <details class="advanced" id="advancedSection">
-      <summary>Advanced Options</summary>
-      <div class="advanced-body">
-        <div class="grid-head">
-          <p>Optional context that gets inserted near the top of every copied prompt. Keep it short and repo-specific.</p>
+    <section class="section-panel profile-panel" aria-labelledby="profilesTitle">
+      <div class="section-head">
+        <h2 id="profilesTitle">Project Profiles</h2>
+        <p>Think of this like a save slot for each project. Pick a profile, and the copied prompts plus terminal templates will already know the important bits.</p>
+      </div>
+      <div class="section-body">
+        <p class="helper-text">Pick a project once. The prompts and terminal commands will fill themselves.</p>
+        <div class="profile-filters">
+          <div class="field">
+            <label for="profileSelector">Saved profiles</label>
+            <select id="profileSelector">
+              <option value="">Choose a save slot...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="environmentSelector">Environment</label>
+            <select id="environmentSelector">
+              <option value="Mac">Mac</option>
+              <option value="Termux">Termux</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
-        <div class="advanced-grid">
+
+        <div class="profile-grid">
+          <div class="field">
+            <label for="profileName">Profile name</label>
+            <input id="profileName" type="text" placeholder="HOME ROW">
+          </div>
           <div class="field">
             <label for="projectName">Project name</label>
             <input id="projectName" type="text" placeholder="Agent Handover Pack">
           </div>
           <div class="field">
-            <label for="repoPath">Repo path</label>
-            <input id="repoPath" type="text" placeholder="/path/to/repo">
+            <label for="macProjectPath">Mac project path</label>
+            <input id="macProjectPath" type="text" placeholder="/Users/jamesmurphy/Desktop/Home Row">
           </div>
           <div class="field">
-            <label for="runCommand">Run command</label>
-            <input id="runCommand" type="text" placeholder="python3 -m http.server 8000">
+            <label for="termuxProjectPath">Termux project path</label>
+            <input id="termuxProjectPath" type="text" placeholder="/data/data/com.termux/files/home/tools/agent-handover-pack">
           </div>
           <div class="field">
-            <label for="testCommand">Test command</label>
-            <input id="testCommand" type="text" placeholder="npm test">
+            <label for="githubRepoUrl">GitHub repo URL</label>
+            <input id="githubRepoUrl" type="url" placeholder="https://github.com/example/project.git">
+          </div>
+          <div class="field">
+            <label for="defaultBranch">Default branch</label>
+            <input id="defaultBranch" type="text" placeholder="main">
+          </div>
+          <div class="field">
+            <label for="mainRunCommand">Main run command</label>
+            <input id="mainRunCommand" type="text" placeholder="python3 -m http.server 8000">
+          </div>
+          <div class="field">
+            <label for="backupRunCommand">Backup run command</label>
+            <input id="backupRunCommand" type="text" placeholder="python3 -m http.server 8001">
+          </div>
+          <div class="field full">
+            <label for="testCheckCommands">Test/check commands</label>
+            <textarea id="testCheckCommands" placeholder="git status --short&#10;node --check src/main.js"></textarea>
+          </div>
+          <div class="field full">
+            <label for="projectContextDocs">Project context docs</label>
+            <textarea id="projectContextDocs" placeholder="AGENTS.md&#10;PROJECT_CONTEXT.md&#10;TODO.md"></textarea>
           </div>
           <div class="field full">
             <label for="sacredRules">Sacred rules / danger zone</label>
-            <textarea id="sacredRules" placeholder="Do not touch ending logic&#10;Do not refactor TypingScene unless asked"></textarea>
+            <textarea id="sacredRules" placeholder="Do not change ending logic.&#10;Do not refactor TypingScene unless explicitly asked."></textarea>
           </div>
           <div class="field full">
-            <label for="currentTask">Current task</label>
-            <textarea id="currentTask" placeholder="Continue the current repo work with the smallest safe change."></textarea>
+            <label for="currentTaskNote">Current task note</label>
+            <textarea id="currentTaskNote" placeholder="Continue the current repo work with the smallest safe change."></textarea>
           </div>
+        </div>
+
+        <div class="profile-actions">
+          <button id="saveProfileBtn" class="primary" type="button">Save Profile</button>
+          <button id="loadProfileBtn" class="secondary" type="button">Load Profile</button>
+          <button id="duplicateProfileBtn" class="secondary" type="button">Duplicate Profile</button>
+          <button id="deleteProfileBtn" class="coral" type="button">Delete Profile</button>
+          <button id="clearProfileFieldsBtn" class="secondary" type="button">Clear Profile Fields</button>
+        </div>
+
+        <div class="starter-actions" aria-label="Starter profiles">
+          <button id="loadHomeRowExampleBtn" class="home" type="button">Load HOME ROW example profile</button>
+          <button id="loadAgentHandoverExampleBtn" class="pack" type="button">Load Agent Handover Pack example profile</button>
         </div>
       </div>
-    </details>
+    </section>
 
-    <section class="prompt-grid" aria-label="Prompt cards">
-      <article class="prompt-card sun">
-        <h2>1. Read Repo &amp; Get Up To Date</h2>
-        <p class="eli5">Ask the agent to read the right docs first, check git state, and only inspect code if it really needs to.</p>
-        <div class="prompt-actions">
-          <button type="button" class="primary" data-copy="read">Copy Prompt</button>
-        </div>
-        <details class="preview">
-          <summary>Preview prompt text</summary>
-          <div class="preview-body">
-            <textarea id="preview-read" readonly spellcheck="false"></textarea>
-          </div>
-        </details>
-      </article>
+    <section class="section-panel" aria-labelledby="templatesTitle">
+      <div class="section-head">
+        <h2 id="templatesTitle">Terminal Paste Templates</h2>
+        <p>These buttons copy beginner-friendly shell snippets built from the active profile. They are meant to be pasted straight into Terminal.</p>
+      </div>
+      <div class="section-body">
+        <div class="template-grid">
+          <article class="template-card sun">
+            <h3>1. Copy Open Project Commands</h3>
+            <p>Jump into the project folder and check the repo state.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="openProject">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-openProject" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
 
-      <article class="prompt-card sky">
-        <h2>2. Continue Safely</h2>
-        <p class="eli5">Tell the agent to explain its understanding first, name the files it expects to touch, and wait before editing.</p>
-        <div class="prompt-actions">
-          <button type="button" class="primary" data-copy="continue">Copy Prompt</button>
-        </div>
-        <details class="preview">
-          <summary>Preview prompt text</summary>
-          <div class="preview-body">
-            <textarea id="preview-continue" readonly spellcheck="false"></textarea>
-          </div>
-        </details>
-      </article>
+          <article class="template-card sky">
+            <h3>2. Copy Start Local Server Commands</h3>
+            <p>Go to the project folder, then run the main start command.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="startServer">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-startServer" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
 
-      <article class="prompt-card green">
-        <h2>3. Git Commit / Push Safely</h2>
-        <p class="eli5">Use this when you only want a git review first, then a careful commit and push if you approve it.</p>
-        <div class="prompt-actions">
-          <button type="button" class="primary" data-copy="git">Copy Prompt</button>
-        </div>
-        <details class="preview">
-          <summary>Preview prompt text</summary>
-          <div class="preview-body">
-            <textarea id="preview-git" readonly spellcheck="false"></textarea>
-          </div>
-        </details>
-      </article>
+          <article class="template-card green">
+            <h3>3. Copy Git Status Commands</h3>
+            <p>Get a tiny health check: status, recent log, and remotes.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="gitStatus">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-gitStatus" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
 
-      <article class="prompt-card coral">
-        <h2>4. Wrap Up Session</h2>
-        <p class="eli5">Use this when the work is done and you want a tidy summary, notes, checks, and next-step docs.</p>
-        <div class="prompt-actions">
-          <button type="button" class="primary" data-copy="wrap">Copy Prompt</button>
+          <article class="template-card coral">
+            <h3>4. Copy Safe Pull Commands</h3>
+            <p>Check if the repo is clean first. Only pull when it is safe.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="safePull">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-safePull" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+
+          <article class="template-card teal">
+            <h3>5. Copy Test/Check Commands</h3>
+            <p>Run the project checks you saved in the profile.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="tests">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-tests" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+
+          <article class="template-card violet">
+            <h3>6. Copy Commit &amp; Push Prep Commands</h3>
+            <p>Review the diff before committing anything. Then add only what you mean.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy-template="commitPrep">Copy Commands</button>
+            </div>
+            <details class="preview">
+              <summary>Preview commands</summary>
+              <div class="preview-body">
+                <textarea id="preview-commitPrep" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
         </div>
-        <details class="preview">
-          <summary>Preview prompt text</summary>
-          <div class="preview-body">
-            <textarea id="preview-wrap" readonly spellcheck="false"></textarea>
-          </div>
-        </details>
-      </article>
+      </div>
+    </section>
+
+    <section class="section-panel" aria-label="Prompt cards">
+      <div class="section-body">
+        <div class="prompt-grid">
+          <article class="prompt-card sun">
+            <h2>1. Read Repo &amp; Get Up To Date</h2>
+            <p class="eli5">Ask the agent to read the right docs first, check git state, and only inspect code if it really needs to.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy="read">Copy Prompt</button>
+            </div>
+            <details class="preview">
+              <summary>Preview prompt text</summary>
+              <div class="preview-body">
+                <textarea id="preview-read" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+
+          <article class="prompt-card sky">
+            <h2>2. Continue Safely</h2>
+            <p class="eli5">Tell the agent to explain its understanding first, name the files it expects to touch, and wait before editing.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy="continue">Copy Prompt</button>
+            </div>
+            <details class="preview">
+              <summary>Preview prompt text</summary>
+              <div class="preview-body">
+                <textarea id="preview-continue" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+
+          <article class="prompt-card green">
+            <h2>3. Git Commit / Push Safely</h2>
+            <p class="eli5">Use this when you only want a git review first, then a careful commit and push if you approve it.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy="git">Copy Prompt</button>
+            </div>
+            <details class="preview">
+              <summary>Preview prompt text</summary>
+              <div class="preview-body">
+                <textarea id="preview-git" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+
+          <article class="prompt-card coral">
+            <h2>4. Wrap Up Session</h2>
+            <p class="eli5">Use this when the work is done and you want a tidy summary, notes, checks, and next-step docs.</p>
+            <div class="template-actions">
+              <button type="button" class="primary" data-copy="wrap">Copy Prompt</button>
+            </div>
+            <details class="preview">
+              <summary>Preview prompt text</summary>
+              <div class="preview-body">
+                <textarea id="preview-wrap" readonly spellcheck="false"></textarea>
+              </div>
+            </details>
+          </article>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -508,7 +759,12 @@
     (function () {
       "use strict";
 
-      var STORAGE_KEY = "agent-handover-pack-simple-v1";
+      var STORAGE_KEYS = {
+        profiles: "agent-handover-pack-project-profiles-v1",
+        activeProfile: "agent-handover-pack-active-project-profile-v1",
+        environment: "agent-handover-pack-environment-v1"
+      };
+
       var DOCS_TO_READ = [
         "AGENTS.md",
         "PROJECT_CONTEXT.md",
@@ -521,148 +777,703 @@
         "MASTER_AGENT_PROMPT.md"
       ];
 
-      var stateFields = {
+      var DEFAULT_ENVIRONMENT = "Termux";
+
+      var memoryStore = {};
+      var profilesState = {
+        profiles: []
+      };
+      var activeProfileId = "";
+
+      var fields = {
+        profileName: document.getElementById("profileName"),
         projectName: document.getElementById("projectName"),
-        repoPath: document.getElementById("repoPath"),
-        runCommand: document.getElementById("runCommand"),
-        testCommand: document.getElementById("testCommand"),
+        macProjectPath: document.getElementById("macProjectPath"),
+        termuxProjectPath: document.getElementById("termuxProjectPath"),
+        githubRepoUrl: document.getElementById("githubRepoUrl"),
+        defaultBranch: document.getElementById("defaultBranch"),
+        mainRunCommand: document.getElementById("mainRunCommand"),
+        backupRunCommand: document.getElementById("backupRunCommand"),
+        testCheckCommands: document.getElementById("testCheckCommands"),
+        projectContextDocs: document.getElementById("projectContextDocs"),
         sacredRules: document.getElementById("sacredRules"),
-        currentTask: document.getElementById("currentTask")
+        currentTaskNote: document.getElementById("currentTaskNote")
       };
 
-      var statusLine = document.getElementById("statusLine");
-      var copyAllBtn = document.getElementById("copyAllBtn");
-      var resetAdvancedBtn = document.getElementById("resetAdvancedBtn");
+      var controls = {
+        profileSelector: document.getElementById("profileSelector"),
+        environmentSelector: document.getElementById("environmentSelector"),
+        saveProfileBtn: document.getElementById("saveProfileBtn"),
+        loadProfileBtn: document.getElementById("loadProfileBtn"),
+        deleteProfileBtn: document.getElementById("deleteProfileBtn"),
+        duplicateProfileBtn: document.getElementById("duplicateProfileBtn"),
+        clearProfileFieldsBtn: document.getElementById("clearProfileFieldsBtn"),
+        loadHomeRowExampleBtn: document.getElementById("loadHomeRowExampleBtn"),
+        loadAgentHandoverExampleBtn: document.getElementById("loadAgentHandoverExampleBtn"),
+        copyAllBtn: document.getElementById("copyAllBtn"),
+        statusLine: document.getElementById("statusLine")
+      };
+
       var previewNodes = {
         read: document.getElementById("preview-read"),
         continue: document.getElementById("preview-continue"),
         git: document.getElementById("preview-git"),
-        wrap: document.getElementById("preview-wrap")
+        wrap: document.getElementById("preview-wrap"),
+        openProject: document.getElementById("preview-openProject"),
+        startServer: document.getElementById("preview-startServer"),
+        gitStatus: document.getElementById("preview-gitStatus"),
+        safePull: document.getElementById("preview-safePull"),
+        tests: document.getElementById("preview-tests"),
+        commitPrep: document.getElementById("preview-commitPrep")
       };
-      var copyButtons = document.querySelectorAll("[data-copy]");
+
+      var copyPromptButtons = document.querySelectorAll("[data-copy]");
+      var copyTemplateButtons = document.querySelectorAll("[data-copy-template]");
+
+      var starterProfiles = {
+        homeRow: {
+          profileName: "HOME ROW",
+          projectName: "HOME ROW",
+          macProjectPath: "/Users/jamesmurphy/Desktop/Home Row",
+          termuxProjectPath: "/data/data/com.termux/files/home/projects/home-row",
+          githubRepoUrl: "",
+          defaultBranch: "main",
+          mainRunCommand: "python3 -m http.server 8000",
+          backupRunCommand: "python3 -m http.server 8001",
+          testCheckCommands: [
+            "git status --short",
+            "node --check src/main.js",
+            "node --check src/scenes/TypingScene.js"
+          ].join("\n"),
+          projectContextDocs: [
+            "AGENTS.md",
+            "PROJECT_CONTEXT.md",
+            "HOME_ROW_CONTEXT.md",
+            "CURRENT_TASK.md",
+            "DEV_LOG.md",
+            "TODO.md",
+            "TEST_ROUTES.md",
+            "HANDOVER.md"
+          ].join("\n"),
+          sacredRules: [
+            "Do not change ending logic.",
+            "Do not change act progression.",
+            "Do not rename assets.",
+            "Do not change Mr Fingers sprite filenames.",
+            "Do not alter witness statement route.",
+            "Do not rewrite story canon.",
+            "Do not refactor TypingScene unless explicitly asked."
+          ].join("\n"),
+          currentTaskNote: ""
+        },
+        pack: {
+          profileName: "Agent Handover Pack",
+          projectName: "Agent Handover Pack",
+          macProjectPath: "~/Desktop/agent-handover-pack",
+          termuxProjectPath: "/data/data/com.termux/files/home/tools/agent-handover-pack",
+          githubRepoUrl: "https://github.com/ThePianoSkitFiasco/agent-handover-pack.git",
+          defaultBranch: "main",
+          mainRunCommand: "python3 -m http.server 8000",
+          backupRunCommand: "python3 -m http.server 8001",
+          testCheckCommands: [
+            "git status --short",
+            "git diff --stat"
+          ].join("\n"),
+          projectContextDocs: [
+            "AGENTS.md",
+            "DEV_LOG.md",
+            "TODO.md"
+          ].join("\n"),
+          sacredRules: [
+            "Keep it single-file HTML.",
+            "No external libraries.",
+            "No build step.",
+            "Preserve simple prompt-control workflow.",
+            "Do not bring back the complex form-heavy UI."
+          ].join("\n"),
+          currentTaskNote: ""
+        }
+      };
 
       function trimText(value) {
         return String(value || "").trim();
       }
 
-      function getState() {
+      function safeLines(value) {
+        return trimText(value).split("\n").map(function (line) {
+          return line.trim();
+        }).filter(Boolean);
+      }
+
+      function safeGetStorage(key) {
+        if (Object.prototype.hasOwnProperty.call(memoryStore, key)) {
+          return memoryStore[key];
+        }
+
+        try {
+          return localStorage.getItem(key);
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function safeSetStorage(key, value) {
+        memoryStore[key] = value;
+
+        try {
+          localStorage.setItem(key, value);
+        } catch (error) {
+          // Keep the in-memory version if persistent storage is unavailable.
+        }
+      }
+
+      function safeRemoveStorage(key) {
+        delete memoryStore[key];
+
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          // Ignore storage failures during cleanup.
+        }
+      }
+
+      function setStatus(message) {
+        controls.statusLine.textContent = message;
+        window.clearTimeout(setStatus.timerId);
+        setStatus.timerId = window.setTimeout(function () {
+          controls.statusLine.textContent = "";
+        }, 2600);
+      }
+
+      function slugify(value) {
+        return trimText(value)
+          .toLowerCase()
+          .replace(/['"]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
+      function makeId(value) {
+        var base = slugify(value) || "profile";
+        return base + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+      }
+
+      function normalizeProfile(raw) {
+        var profile = raw || {};
+
         return {
-          projectName: trimText(stateFields.projectName.value),
-          repoPath: trimText(stateFields.repoPath.value),
-          runCommand: trimText(stateFields.runCommand.value),
-          testCommand: trimText(stateFields.testCommand.value),
-          sacredRules: trimText(stateFields.sacredRules.value),
-          currentTask: trimText(stateFields.currentTask.value)
+          id: trimText(profile.id) || makeId(profile.profileName || profile.projectName || "profile"),
+          profileName: trimText(profile.profileName),
+          projectName: trimText(profile.projectName),
+          macProjectPath: trimText(profile.macProjectPath),
+          termuxProjectPath: trimText(profile.termuxProjectPath),
+          githubRepoUrl: trimText(profile.githubRepoUrl),
+          defaultBranch: trimText(profile.defaultBranch),
+          mainRunCommand: trimText(profile.mainRunCommand),
+          backupRunCommand: trimText(profile.backupRunCommand),
+          testCheckCommands: trimText(profile.testCheckCommands),
+          projectContextDocs: trimText(profile.projectContextDocs),
+          sacredRules: trimText(profile.sacredRules),
+          currentTaskNote: trimText(profile.currentTaskNote),
+          environment: trimText(profile.environment) || DEFAULT_ENVIRONMENT,
+          updatedAt: trimText(profile.updatedAt) || new Date().toISOString()
         };
       }
 
-      function setState(nextState) {
-        Object.keys(stateFields).forEach(function (key) {
-          if (Object.prototype.hasOwnProperty.call(nextState, key)) {
-            stateFields[key].value = nextState[key] || "";
-          }
-        });
-      }
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
-        } catch (error) {
-          // Ignore storage failures so typing stays smooth.
-        }
-      }
-
-      function loadState() {
-        var raw = "";
-
-        try {
-          raw = localStorage.getItem(STORAGE_KEY);
-        } catch (error) {
-          raw = "";
-        }
+      function loadProfilesState() {
+        var raw = safeGetStorage(STORAGE_KEYS.profiles);
 
         if (!raw) {
-          renderPreviews();
+          profilesState = { profiles: [] };
+          activeProfileId = "";
           return;
         }
 
         try {
-          setState(JSON.parse(raw) || {});
+          var parsed = JSON.parse(raw);
+          var profiles = [];
+
+          if (parsed && Array.isArray(parsed.profiles)) {
+            profiles = parsed.profiles.map(normalizeProfile).filter(function (profile) {
+              return Boolean(profile.id);
+            });
+          } else if (Array.isArray(parsed)) {
+            profiles = parsed.map(normalizeProfile).filter(function (profile) {
+              return Boolean(profile.id);
+            });
+          }
+
+          profilesState = { profiles: profiles };
         } catch (error) {
-          setStatus("Saved prompt context could not be read.");
+          profilesState = { profiles: [] };
+          setStatus("Saved profiles could not be read, so the list was reset for this session.");
         }
 
-        renderPreviews();
+        var activeRaw = safeGetStorage(STORAGE_KEYS.activeProfile);
+
+        if (activeRaw) {
+          try {
+            var activeParsed = JSON.parse(activeRaw);
+            activeProfileId = trimText(activeParsed && activeParsed.id);
+          } catch (error2) {
+            activeProfileId = "";
+          }
+        } else {
+          activeProfileId = "";
+        }
       }
 
-      function setStatus(message) {
-        statusLine.textContent = message;
-        window.clearTimeout(setStatus.timerId);
-        setStatus.timerId = window.setTimeout(function () {
-          statusLine.textContent = "";
-        }, 2400);
+      function saveProfilesState() {
+        safeSetStorage(STORAGE_KEYS.profiles, JSON.stringify({
+          profiles: profilesState.profiles
+        }));
       }
 
-      function bulletBlock(value, fallback) {
-        var lines = trimText(value)
-          .split("\n")
-          .map(function (line) {
-            return line.trim();
-          })
-          .filter(Boolean);
-
-        if (!lines.length) {
-          return fallback ? "- " + fallback : "";
+      function saveActiveProfileState(profile) {
+        if (profile) {
+          safeSetStorage(STORAGE_KEYS.activeProfile, JSON.stringify({
+            id: profile.id,
+            name: profile.profileName || profile.projectName || profile.id
+          }));
+        } else {
+          safeRemoveStorage(STORAGE_KEYS.activeProfile);
         }
-
-        return lines.map(function (line) {
-          return "- " + line.replace(/^-+\s*/, "");
-        }).join("\n");
       }
 
-      function contextBlock(data) {
-        var lines = [];
+      function getProfileById(id) {
+        var target = trimText(id);
+        var i;
 
-        if (data.projectName) {
-          lines.push("Project: " + data.projectName);
-        }
-        if (data.repoPath) {
-          lines.push("Repo path: " + data.repoPath);
-        }
-        if (data.runCommand) {
-          lines.push("Run command: " + data.runCommand);
-        }
-        if (data.testCommand) {
-          lines.push("Test command: " + data.testCommand);
-        }
-        if (data.currentTask) {
-          lines.push("Current task: " + data.currentTask);
-        }
-        if (data.sacredRules) {
-          lines.push("Sacred rules / danger zone:");
-          lines.push(bulletBlock(data.sacredRules, "No extra sacred rules listed."));
+        for (i = 0; i < profilesState.profiles.length; i += 1) {
+          if (profilesState.profiles[i].id === target) {
+            return profilesState.profiles[i];
+          }
         }
 
-        if (!lines.length) {
+        return null;
+      }
+
+      function collectFields() {
+        return {
+          profileName: trimText(fields.profileName.value),
+          projectName: trimText(fields.projectName.value),
+          macProjectPath: trimText(fields.macProjectPath.value),
+          termuxProjectPath: trimText(fields.termuxProjectPath.value),
+          githubRepoUrl: trimText(fields.githubRepoUrl.value),
+          defaultBranch: trimText(fields.defaultBranch.value),
+          mainRunCommand: trimText(fields.mainRunCommand.value),
+          backupRunCommand: trimText(fields.backupRunCommand.value),
+          testCheckCommands: trimText(fields.testCheckCommands.value),
+          projectContextDocs: trimText(fields.projectContextDocs.value),
+          sacredRules: trimText(fields.sacredRules.value),
+          currentTaskNote: trimText(fields.currentTaskNote.value),
+          environment: trimText(controls.environmentSelector.value) || DEFAULT_ENVIRONMENT
+        };
+      }
+
+      function applyProfileToFields(profile) {
+        var next = normalizeProfile(profile || {});
+
+        fields.profileName.value = next.profileName;
+        fields.projectName.value = next.projectName;
+        fields.macProjectPath.value = next.macProjectPath;
+        fields.termuxProjectPath.value = next.termuxProjectPath;
+        fields.githubRepoUrl.value = next.githubRepoUrl;
+        fields.defaultBranch.value = next.defaultBranch;
+        fields.mainRunCommand.value = next.mainRunCommand;
+        fields.backupRunCommand.value = next.backupRunCommand;
+        fields.testCheckCommands.value = next.testCheckCommands;
+        fields.projectContextDocs.value = next.projectContextDocs;
+        fields.sacredRules.value = next.sacredRules;
+        fields.currentTaskNote.value = next.currentTaskNote;
+        controls.environmentSelector.value = next.environment || DEFAULT_ENVIRONMENT;
+      }
+
+      function getProfilePayloadFromFields(existingId) {
+        var data = collectFields();
+        var profileName = data.profileName || data.projectName || "Untitled Profile";
+
+        return normalizeProfile({
+          id: existingId || makeId(profileName),
+          profileName: profileName,
+          projectName: data.projectName || profileName,
+          macProjectPath: data.macProjectPath,
+          termuxProjectPath: data.termuxProjectPath,
+          githubRepoUrl: data.githubRepoUrl,
+          defaultBranch: data.defaultBranch,
+          mainRunCommand: data.mainRunCommand,
+          backupRunCommand: data.backupRunCommand,
+          testCheckCommands: data.testCheckCommands,
+          projectContextDocs: data.projectContextDocs,
+          sacredRules: data.sacredRules,
+          currentTaskNote: data.currentTaskNote,
+          environment: data.environment
+        });
+      }
+
+      function renderProfileSelector() {
+        var currentId = activeProfileId || "";
+        var fragment = document.createDocumentFragment();
+        var placeholder = document.createElement("option");
+        var i;
+
+        placeholder.value = "";
+        placeholder.textContent = "Choose a save slot...";
+        fragment.appendChild(placeholder);
+
+        for (i = 0; i < profilesState.profiles.length; i += 1) {
+          var profile = profilesState.profiles[i];
+          var label = profile.profileName || profile.projectName || profile.id;
+          var option = document.createElement("option");
+
+          if (profile.id === currentId) {
+            label += " (active)";
+          }
+
+          option.value = profile.id;
+          option.textContent = label;
+          fragment.appendChild(option);
+        }
+
+        controls.profileSelector.innerHTML = "";
+        controls.profileSelector.appendChild(fragment);
+        controls.profileSelector.value = currentId;
+      }
+
+      function saveProfile() {
+        var existing = activeProfileId ? getProfileById(activeProfileId) : null;
+        var profile = getProfilePayloadFromFields(existing && existing.id);
+
+        if (existing) {
+          var index = profilesState.profiles.indexOf(existing);
+          profilesState.profiles[index] = profile;
+        } else {
+          profilesState.profiles.push(profile);
+        }
+
+        activeProfileId = profile.id;
+        saveProfilesState();
+        saveActiveProfileState(profile);
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Profile saved: " + profile.profileName + ".");
+      }
+
+      function loadSelectedProfile() {
+        var profile = getProfileById(controls.profileSelector.value);
+
+        if (!profile) {
+          setStatus("Pick a saved profile first.");
+          return;
+        }
+
+        activeProfileId = profile.id;
+        applyProfileToFields(profile);
+        saveActiveProfileState(profile);
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Loaded profile: " + (profile.profileName || profile.projectName || "Untitled Profile") + ".");
+      }
+
+      function deleteSelectedProfile() {
+        var profile = getProfileById(controls.profileSelector.value || activeProfileId);
+
+        if (!profile) {
+          setStatus("No saved profile is selected.");
+          return;
+        }
+
+        if (!window.confirm('Delete the profile "' + (profile.profileName || profile.projectName || "Untitled Profile") + '"?')) {
+          return;
+        }
+
+        profilesState.profiles = profilesState.profiles.filter(function (item) {
+          return item.id !== profile.id;
+        });
+
+        if (activeProfileId === profile.id) {
+          activeProfileId = "";
+          saveActiveProfileState(null);
+        }
+
+        saveProfilesState();
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Deleted profile: " + (profile.profileName || profile.projectName || "Untitled Profile") + ".");
+      }
+
+      function duplicateSelectedProfile() {
+        var source = getProfileById(activeProfileId || controls.profileSelector.value);
+
+        if (!source) {
+          source = getProfilePayloadFromFields();
+        }
+
+        if (!source || (!source.profileName && !source.projectName && !source.macProjectPath && !source.termuxProjectPath && !source.mainRunCommand && !source.testCheckCommands)) {
+          setStatus("Fill the fields or load a profile before duplicating.");
+          return;
+        }
+
+        var copy = normalizeProfile({
+          id: makeId((source.profileName || source.projectName || "profile") + " copy"),
+          profileName: "Copy of " + (source.profileName || source.projectName || "Untitled Profile"),
+          projectName: source.projectName || source.profileName || "Untitled Profile",
+          macProjectPath: source.macProjectPath,
+          termuxProjectPath: source.termuxProjectPath,
+          githubRepoUrl: source.githubRepoUrl,
+          defaultBranch: source.defaultBranch,
+          mainRunCommand: source.mainRunCommand,
+          backupRunCommand: source.backupRunCommand,
+          testCheckCommands: source.testCheckCommands,
+          projectContextDocs: source.projectContextDocs,
+          sacredRules: source.sacredRules,
+          currentTaskNote: source.currentTaskNote,
+          environment: source.environment
+        });
+
+        profilesState.profiles.push(copy);
+        activeProfileId = copy.id;
+        applyProfileToFields(copy);
+        saveProfilesState();
+        saveActiveProfileState(copy);
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Duplicated profile as " + copy.profileName + ".");
+      }
+
+      function clearProfileFields() {
+        applyProfileToFields({
+          profileName: "",
+          projectName: "",
+          macProjectPath: "",
+          termuxProjectPath: "",
+          githubRepoUrl: "",
+          defaultBranch: "",
+          mainRunCommand: "",
+          backupRunCommand: "",
+          testCheckCommands: "",
+          projectContextDocs: "",
+          sacredRules: "",
+          currentTaskNote: "",
+          environment: controls.environmentSelector.value || DEFAULT_ENVIRONMENT
+        });
+
+        activeProfileId = "";
+        saveActiveProfileState(null);
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Profile fields cleared.");
+      }
+
+      function loadExampleProfile(exampleKey) {
+        var example = starterProfiles[exampleKey];
+        var profile;
+        var existing;
+        var matchedByName;
+
+        if (!example) {
+          return;
+        }
+
+        profile = normalizeProfile({
+          id: makeId(example.profileName),
+          profileName: example.profileName,
+          projectName: example.projectName,
+          macProjectPath: example.macProjectPath,
+          termuxProjectPath: example.termuxProjectPath,
+          githubRepoUrl: example.githubRepoUrl,
+          defaultBranch: example.defaultBranch,
+          mainRunCommand: example.mainRunCommand,
+          backupRunCommand: example.backupRunCommand,
+          testCheckCommands: example.testCheckCommands,
+          projectContextDocs: example.projectContextDocs,
+          sacredRules: example.sacredRules,
+          currentTaskNote: example.currentTaskNote,
+          environment: example.environment || controls.environmentSelector.value || DEFAULT_ENVIRONMENT
+        });
+
+        existing = getProfileById(profile.id);
+        matchedByName = profilesState.profiles.filter(function (item) {
+          return trimText(item.profileName).toLowerCase() === trimText(profile.profileName).toLowerCase();
+        })[0] || null;
+
+        if (existing || matchedByName) {
+          existing = existing || matchedByName;
+          profile.id = existing.id;
+          profilesState.profiles = profilesState.profiles.map(function (item) {
+            return item.id === existing.id ? profile : item;
+          });
+        } else {
+          profilesState.profiles.push(profile);
+        }
+
+        activeProfileId = profile.id;
+        applyProfileToFields(profile);
+        saveProfilesState();
+        saveActiveProfileState(profile);
+        renderProfileSelector();
+        renderAllPreviews();
+        setStatus("Loaded example profile: " + profile.profileName + ".");
+      }
+
+      function hasAnyContext(data) {
+        var keys = [
+          "profileName",
+          "projectName",
+          "macProjectPath",
+          "termuxProjectPath",
+          "githubRepoUrl",
+          "defaultBranch",
+          "mainRunCommand",
+          "backupRunCommand",
+          "testCheckCommands",
+          "projectContextDocs",
+          "sacredRules",
+          "currentTaskNote"
+        ];
+        var i;
+
+        for (i = 0; i < keys.length; i += 1) {
+          if (trimText(data[keys[i]])) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function getSelectedLocalPath(data) {
+        var environment = trimText(data.environment) || DEFAULT_ENVIRONMENT;
+
+        if (environment === "Mac") {
+          return trimText(data.macProjectPath) || trimText(data.termuxProjectPath);
+        }
+
+        if (environment === "Termux") {
+          return trimText(data.termuxProjectPath) || trimText(data.macProjectPath);
+        }
+
+        return trimText(data.macProjectPath) || trimText(data.termuxProjectPath);
+      }
+
+      function shellQuotePath(pathValue) {
+        var text = trimText(pathValue);
+
+        if (!text) {
           return "";
         }
 
-        return [
-          "Repo context:",
-          lines.join("\n"),
-          ""
-        ].join("\n");
+        return "'" + text.replace(/'/g, "'\"'\"'") + "'";
+      }
+
+      function bulletLines(value, fallback) {
+        var lines = safeLines(value);
+
+        if (!lines.length) {
+          return fallback ? [fallback] : [];
+        }
+
+        return lines.map(function (line) {
+          return line.replace(/^-+\s*/, "");
+        });
+      }
+
+      function buildContextBlock(data) {
+        if (!hasAnyContext(data)) {
+          return "";
+        }
+
+        var lines = [];
+        var projectName = trimText(data.projectName) || trimText(data.profileName);
+        var environment = trimText(data.environment) || DEFAULT_ENVIRONMENT;
+
+        lines.push("Active Project Context:");
+
+        if (projectName) {
+          lines.push("- Project name: " + projectName);
+        }
+
+        lines.push("- Environment: " + environment);
+
+        if (environment === "Other") {
+          if (trimText(data.macProjectPath)) {
+            lines.push("- Mac project path: " + data.macProjectPath);
+          }
+          if (trimText(data.termuxProjectPath)) {
+            lines.push("- Termux project path: " + data.termuxProjectPath);
+          }
+        } else {
+          var localPath = getSelectedLocalPath(data);
+
+          if (localPath) {
+            lines.push("- Local path: " + localPath);
+          }
+        }
+
+        if (trimText(data.githubRepoUrl)) {
+          lines.push("- GitHub repo URL: " + data.githubRepoUrl);
+        }
+
+        if (trimText(data.defaultBranch)) {
+          lines.push("- Default branch: " + data.defaultBranch);
+        }
+
+        if (trimText(data.mainRunCommand)) {
+          lines.push("- Run command: " + data.mainRunCommand);
+        }
+
+        if (trimText(data.backupRunCommand)) {
+          lines.push("- Backup run command: " + data.backupRunCommand);
+        }
+
+        var testLines = bulletLines(data.testCheckCommands, "No test/check commands set yet.");
+        if (testLines.length) {
+          lines.push("- Test/check commands:");
+          testLines.forEach(function (line) {
+            lines.push("  - " + line);
+          });
+        }
+
+        var docsLines = bulletLines(data.projectContextDocs, "No project context docs listed yet.");
+        if (docsLines.length) {
+          lines.push("- Project context docs:");
+          docsLines.forEach(function (line) {
+            lines.push("  - " + line);
+          });
+        }
+
+        var rulesLines = bulletLines(data.sacredRules, "No sacred rules listed yet.");
+        if (rulesLines.length) {
+          lines.push("- Sacred rules / danger zone:");
+          rulesLines.forEach(function (line) {
+            lines.push("  - " + line);
+          });
+        }
+
+        var taskLines = bulletLines(data.currentTaskNote, "No current task note yet.");
+        if (taskLines.length) {
+          lines.push("- Current task note:");
+          taskLines.forEach(function (line) {
+            lines.push("  - " + line);
+          });
+        }
+
+        return lines.join("\n") + "\n";
+      }
+
+      function readDocsInstruction() {
+        return DOCS_TO_READ.join(", ");
       }
 
       function buildReadPrompt(data) {
-        var context = contextBlock(data);
+        var context = buildContextBlock(data);
 
         return [
           "You are helping in this repository.",
           context,
           "Do not edit files yet.",
           "Read these docs first if they exist:",
-          DOCS_TO_READ.join(", "),
+          readDocsInstruction(),
           "Check `git status`.",
           "Check recent commits.",
           "Inspect relevant source files only if needed.",
@@ -679,7 +1490,7 @@
       }
 
       function buildContinuePrompt(data) {
-        var context = contextBlock(data);
+        var context = buildContextBlock(data);
 
         return [
           "Continue from the current repo state.",
@@ -699,7 +1510,7 @@
       }
 
       function buildGitPrompt(data) {
-        var context = contextBlock(data);
+        var context = buildContextBlock(data);
 
         return [
           "Do not edit source code.",
@@ -721,7 +1532,7 @@
       }
 
       function buildWrapPrompt(data) {
-        var context = contextBlock(data);
+        var context = buildContextBlock(data);
 
         return [
           "Stop starting new work.",
@@ -740,7 +1551,7 @@
       }
 
       function buildPrompts() {
-        var data = getState();
+        var data = collectFields();
 
         return {
           read: buildReadPrompt(data),
@@ -750,12 +1561,111 @@
         };
       }
 
-      function renderPreviews() {
+      function buildCdPrefix(data) {
+        var pathValue = getSelectedLocalPath(data);
+
+        if (!pathValue) {
+          return [
+            "# Paste the project folder path first.",
+            "# Then change into the project directory."
+          ];
+        }
+
+        return [
+          "cd " + shellQuotePath(pathValue)
+        ];
+      }
+
+      function buildOpenProjectTemplate(data) {
+        return buildCdPrefix(data).concat([
+          "git status --short"
+        ]).join("\n");
+      }
+
+      function buildStartServerTemplate(data) {
+        var lines = buildCdPrefix(data);
+
+        if (trimText(data.mainRunCommand)) {
+          lines.push(data.mainRunCommand);
+        } else {
+          lines.push("# Replace this with the project's main run command.");
+        }
+
+        return lines.join("\n");
+      }
+
+      function buildGitStatusTemplate(data) {
+        return buildCdPrefix(data).concat([
+          "git status --short",
+          "git log --oneline -5",
+          "git remote -v"
+        ]).join("\n");
+      }
+
+      function buildSafePullTemplate(data) {
+        return buildCdPrefix(data).concat([
+          "git status --short",
+          "# If clean, run:",
+          "git pull",
+          "# If not clean, commit, stash, or discard deliberately first."
+        ]).join("\n");
+      }
+
+      function buildTestTemplate(data) {
+        var lines = buildCdPrefix(data);
+        var testLines = safeLines(data.testCheckCommands);
+
+        if (testLines.length) {
+          testLines.forEach(function (line) {
+            lines.push(line);
+          });
+        } else {
+          lines.push("# Replace this with the project's test/check commands.");
+        }
+
+        return lines.join("\n");
+      }
+
+      function buildCommitPrepTemplate(data) {
+        return buildCdPrefix(data).concat([
+          "git status --short",
+          "git diff --stat",
+          "git log --oneline -5",
+          "# Review changes before committing.",
+          "# Then commit only related files.",
+          "# git add path/to/changed-file",
+          "# git commit -m \"Describe the change\"",
+          "# git push"
+        ]).join("\n");
+      }
+
+      function buildTerminalTemplates() {
+        var data = collectFields();
+
+        return {
+          openProject: buildOpenProjectTemplate(data),
+          startServer: buildStartServerTemplate(data),
+          gitStatus: buildGitStatusTemplate(data),
+          safePull: buildSafePullTemplate(data),
+          tests: buildTestTemplate(data),
+          commitPrep: buildCommitPrepTemplate(data)
+        };
+      }
+
+      function renderAllPreviews() {
         var prompts = buildPrompts();
+        var templates = buildTerminalTemplates();
+
         previewNodes.read.value = prompts.read;
         previewNodes.continue.value = prompts.continue;
         previewNodes.git.value = prompts.git;
         previewNodes.wrap.value = prompts.wrap;
+        previewNodes.openProject.value = templates.openProject;
+        previewNodes.startServer.value = templates.startServer;
+        previewNodes.gitStatus.value = templates.gitStatus;
+        previewNodes.safePull.value = templates.safePull;
+        previewNodes.tests.value = templates.tests;
+        previewNodes.commitPrep.value = templates.commitPrep;
       }
 
       function fallbackCopy(text, message) {
@@ -800,7 +1710,22 @@
           git: "Git Commit / Push Safely",
           wrap: "Wrap Up Session"
         };
+
         copyText(prompts[name], labelMap[name] + " copied.");
+      }
+
+      function copyTemplate(name) {
+        var templates = buildTerminalTemplates();
+        var labelMap = {
+          openProject: "Open Project Commands",
+          startServer: "Start Local Server Commands",
+          gitStatus: "Git Status Commands",
+          safePull: "Safe Pull Commands",
+          tests: "Test/Check Commands",
+          commitPrep: "Commit & Push Prep Commands"
+        };
+
+        copyText(templates[name], labelMap[name] + " copied.");
       }
 
       function copyAllPrompts() {
@@ -830,42 +1755,73 @@
         copyText(combined, "All prompts copied.");
       }
 
-      function resetAdvancedOptions() {
-        setState({
-          projectName: "",
-          repoPath: "",
-          runCommand: "",
-          testCommand: "",
-          sacredRules: "",
-          currentTask: ""
-        });
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (error) {
-          // Ignore storage errors during reset.
+      function syncStorageFromFields() {
+        if (activeProfileId) {
+          var existing = getProfileById(activeProfileId);
+
+          if (existing) {
+            saveActiveProfileState(existing);
+          }
         }
-        renderPreviews();
-        setStatus("Advanced options reset.");
       }
 
-      Object.keys(stateFields).forEach(function (key) {
-        stateFields[key].addEventListener("input", function () {
-          saveState();
-          renderPreviews();
+      Object.keys(fields).forEach(function (key) {
+        fields[key].addEventListener("input", function () {
+          renderAllPreviews();
+          syncStorageFromFields();
         });
       });
 
-      copyButtons.forEach(function (button) {
+      controls.environmentSelector.addEventListener("change", function () {
+        renderAllPreviews();
+        safeSetStorage(STORAGE_KEYS.environment, controls.environmentSelector.value);
+        syncStorageFromFields();
+      });
+
+      controls.profileSelector.addEventListener("change", function () {
+        if (controls.profileSelector.value) {
+          loadSelectedProfile();
+        }
+      });
+
+      controls.saveProfileBtn.addEventListener("click", saveProfile);
+      controls.loadProfileBtn.addEventListener("click", loadSelectedProfile);
+      controls.deleteProfileBtn.addEventListener("click", deleteSelectedProfile);
+      controls.duplicateProfileBtn.addEventListener("click", duplicateSelectedProfile);
+      controls.clearProfileFieldsBtn.addEventListener("click", clearProfileFields);
+      controls.loadHomeRowExampleBtn.addEventListener("click", function () {
+        loadExampleProfile("homeRow");
+      });
+      controls.loadAgentHandoverExampleBtn.addEventListener("click", function () {
+        loadExampleProfile("pack");
+      });
+      controls.copyAllBtn.addEventListener("click", copyAllPrompts);
+
+      copyPromptButtons.forEach(function (button) {
         button.addEventListener("click", function () {
           copyPrompt(button.getAttribute("data-copy"));
         });
       });
 
-      copyAllBtn.addEventListener("click", copyAllPrompts);
-      resetAdvancedBtn.addEventListener("click", resetAdvancedOptions);
+      copyTemplateButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          copyTemplate(button.getAttribute("data-copy-template"));
+        });
+      });
 
-      loadState();
-      renderPreviews();
+      loadProfilesState();
+      controls.environmentSelector.value = safeGetStorage(STORAGE_KEYS.environment) || DEFAULT_ENVIRONMENT;
+
+      if (activeProfileId) {
+        var activeProfile = getProfileById(activeProfileId);
+        if (activeProfile) {
+          applyProfileToFields(activeProfile);
+          saveActiveProfileState(activeProfile);
+        }
+      }
+
+      renderProfileSelector();
+      renderAllPreviews();
     }());
   </script>
 </body>
