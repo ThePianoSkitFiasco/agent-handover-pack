@@ -1,7 +1,6 @@
 <!--
   Agent Handover Pack
-  Single-file HTML tool for capturing project/task handover context and generating
-  markdown files that help safely transfer work between Claude Code, Codex, and OpenCode.
+  Single-file prompt-control tool for repo handoff between coding agents.
 -->
 <!doctype html>
 <html lang="en">
@@ -11,35 +10,38 @@
   <title>Agent Handover Pack</title>
   <style>
     :root {
-      --bg: #fff7ee;
-      --bg-panel: rgba(255, 255, 255, 0.98);
-      --bg-panel-2: rgba(255, 250, 245, 0.98);
-      --line: #d7c4b4;
-      --line-soft: rgba(130, 94, 66, 0.16);
-      --text: #35261f;
-      --text-soft: #6a5345;
-      --accent: #ff5f8f;
-      --accent-2: #7d4cff;
-      --danger: #d33d55;
-      --shadow: rgba(132, 91, 57, 0.12);
-      --radius: 24px;
-      --gap: 18px;
-      --font: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+      --bg: #fff8ef;
+      --panel: rgba(255, 255, 255, 0.92);
+      --line: rgba(116, 84, 58, 0.16);
+      --text: #33261f;
+      --muted: #6f5a4d;
+      --sun: #ffd84d;
+      --sky: #6ed2ff;
+      --green: #7be27d;
+      --coral: #ff8f7d;
+      --teal: #46d7c9;
+      --pink: #ff93c4;
+      --orange: #ffb15e;
+      --shadow: rgba(115, 79, 47, 0.12);
+      --radius: 28px;
+      --font: "Trebuchet MS", "Verdana", sans-serif;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(circle at top, rgba(255, 217, 92, 0.28), transparent 28%),
-        radial-gradient(circle at 85% 15%, rgba(98, 206, 255, 0.2), transparent 24%),
-        linear-gradient(180deg, #fff8ef 0%, #fff0fb 46%, #fffdfa 100%);
       color: var(--text);
       font-family: var(--font);
+      background:
+        radial-gradient(circle at 14% 10%, rgba(255, 216, 77, 0.34), transparent 18%),
+        radial-gradient(circle at 88% 16%, rgba(110, 210, 255, 0.26), transparent 18%),
+        radial-gradient(circle at 20% 82%, rgba(123, 226, 125, 0.18), transparent 20%),
+        linear-gradient(180deg, #fff8ef 0%, #fff1fb 48%, #f7fff9 100%);
     }
 
     body::before {
@@ -48,280 +50,164 @@
       inset: 0;
       pointer-events: none;
       background:
-        repeating-linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.06) 0,
-          rgba(255, 255, 255, 0.06) 1px,
-          transparent 1px,
-          transparent 6px
-        );
-      opacity: 0.12;
-      mix-blend-mode: soft-light;
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.48) 0 2px, transparent 3px),
+        radial-gradient(circle at 72% 14%, rgba(255, 255, 255, 0.48) 0 2px, transparent 3px),
+        radial-gradient(circle at 84% 74%, rgba(255, 255, 255, 0.48) 0 2px, transparent 3px);
+      background-size: 110px 110px;
+      opacity: 0.5;
     }
 
     .app {
-      width: min(1200px, calc(100% - 24px));
+      width: min(1200px, calc(100% - 20px));
       margin: 0 auto;
-      padding: 20px 0 40px;
+      padding: 14px 0 36px;
     }
 
     .hero,
-    .panel {
-      --card-bg-1: var(--bg-panel);
-      --card-bg-2: var(--bg-panel-2);
-      --card-border: var(--line);
-      --card-accent: #ffb347;
-      --card-accent-soft: rgba(255, 179, 71, 0.22);
+    .prompt-card,
+    .advanced {
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: linear-gradient(180deg, var(--card-bg-1) 0%, var(--card-bg-2) 100%);
-      box-shadow: 0 16px 32px var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), var(--panel));
+      box-shadow: 0 14px 30px var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.68);
       overflow: hidden;
     }
 
-    .hero.theme-teal {
-      --card-bg-1: rgba(241, 255, 252, 0.98);
-      --card-bg-2: rgba(231, 250, 246, 0.98);
-      --card-accent: #42d4c8;
-      --card-accent-soft: rgba(66, 212, 200, 0.24);
-    }
-
     .hero {
-      margin-bottom: 18px;
-    }
-
-    .hero-head,
-    .panel-head {
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--line-soft);
-      background: linear-gradient(90deg, var(--card-accent-soft), rgba(255, 255, 255, 0.55));
-    }
-
-    .hero-head h1,
-    .panel-head h2 {
-      margin: 0;
-      font-size: 1.22rem;
-      letter-spacing: 0.01em;
-      line-height: 1.2;
-    }
-
-    .hero-body,
-    .panel-body {
+      position: relative;
       padding: 20px;
+      margin-bottom: 16px;
+      background:
+        linear-gradient(135deg, rgba(255, 216, 77, 0.34), rgba(255, 255, 255, 0.88) 34%, rgba(110, 210, 255, 0.24)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 248, 239, 0.94));
     }
 
-    .hero p,
-    .note,
-    .meta,
-    .field-help {
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -20px -40px auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 147, 196, 0.28), transparent 68%);
+      pointer-events: none;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
       margin: 0;
-      color: var(--text-soft);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline {
+      max-width: 64ch;
+      margin-top: 12px;
+      color: var(--muted);
       line-height: 1.6;
       font-size: 1rem;
     }
 
-    .top-actions,
-    .action-row,
-    .file-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .top-actions {
-      margin-top: 16px;
-    }
-
-    .top-actions.tight {
-      margin-top: 10px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .sub-panels {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
-    .steps {
-      display: grid;
-      gap: 10px;
-    }
-
-    .step {
-      padding: 14px 16px;
-      border: 1px solid rgba(118, 95, 78, 0.14);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.74);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
-    }
-
-    .step strong {
-      display: block;
-      margin-bottom: 6px;
-      color: #7b4cff;
-      font-size: 1rem;
-    }
-
-    .agent-fill-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .check-grid {
-      display: grid;
-      gap: 10px;
-    }
-
-    .check-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px;
-      border: 1px solid rgba(118, 95, 78, 0.14);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.76);
-      color: var(--text);
-    }
-
-    .check-item input {
-      width: 18px;
-      height: 18px;
-      margin: 2px 0 0;
-      accent-color: #74ff9f;
-      flex: 0 0 auto;
-    }
-
-    .select-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .toggle-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 16px;
-      padding: 14px 16px;
-      border: 1px solid rgba(118, 95, 78, 0.14);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.78);
-    }
-
-    .toggle-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text);
-    }
-
-    .toggle-label input {
-      width: 18px;
-      height: 18px;
-      margin: 0;
-      accent-color: #74ff9f;
-    }
-
-    .toggle-copy {
-      color: var(--text-soft);
-      font-size: 0.92rem;
-    }
-
-    .beginner-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #fff2a8 0%, #ffd84d 100%);
-      color: #5c4212;
-      font-size: 0.95rem;
-      font-weight: 800;
-      box-shadow: 0 8px 18px rgba(255, 194, 74, 0.18);
-    }
-
-    .beginner-badge.is-off {
-      background: linear-gradient(180deg, #f0eef8 0%, #ddd7f8 100%);
-      color: #554b78;
-    }
-
-    .legend {
+    .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 16px;
-    }
-
-    .legend-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(118, 95, 78, 0.12);
-      font-size: 0.92rem;
-      color: #5d473b;
-      box-shadow: 0 6px 14px rgba(136, 95, 60, 0.08);
     }
 
     button {
-      border: 1px solid rgba(118, 95, 78, 0.18);
+      border: 1px solid rgba(100, 76, 55, 0.16);
       border-radius: 999px;
       padding: 13px 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #fff3e8 100%);
-      color: #3a2a21;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
       min-height: 50px;
-      box-shadow: 0 8px 18px rgba(135, 93, 58, 0.08);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      color: #33261f;
+      background: linear-gradient(180deg, #ffffff 0%, #fff2de 100%);
+      box-shadow: 0 8px 18px rgba(118, 81, 47, 0.1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
     }
 
     button:hover,
     button:focus-visible {
       outline: none;
-      border-color: #ff9d2e;
-      background: linear-gradient(180deg, #fffaf2 0%, #ffeacb 100%);
       transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(118, 81, 47, 0.14);
+      filter: saturate(1.03);
     }
 
     button.primary {
-      background: linear-gradient(180deg, #ff7aa8 0%, #ff5f8f 100%);
-      color: #fffafc;
-      border-color: #e94d82;
+      color: #2d2413;
+      background: linear-gradient(180deg, #ffe36f 0%, #ffd140 100%);
+      border-color: #e6b91f;
     }
 
-    button.warn {
-      border-color: #dc7f55;
-      background: linear-gradient(180deg, #ffb48d 0%, #ff9e74 100%);
-      color: #4a241a;
+    button.secondary {
+      background: linear-gradient(180deg, #ffffff 0%, #eef9ff 100%);
     }
 
-    .meta {
+    button.coral {
+      background: linear-gradient(180deg, #ffb1a4 0%, #ff907e 100%);
+      border-color: #ea7663;
+    }
+
+    .status {
+      min-height: 1.4em;
       margin-top: 12px;
+      color: #cb4b74;
+      font-weight: 800;
+      font-size: 0.98rem;
+    }
+
+    .mini-note {
+      margin-top: 8px;
+      color: var(--muted);
       font-size: 0.92rem;
+      line-height: 1.45;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 18px;
+    .advanced {
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 253, 251, 0.94));
     }
 
-    .form-grid {
+    .advanced summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      font-size: 1.06rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, rgba(123, 226, 125, 0.18), rgba(110, 210, 255, 0.12), rgba(255, 147, 196, 0.14));
+      border-bottom: 1px solid rgba(100, 76, 55, 0.1);
+    }
+
+    .advanced summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .advanced-body {
+      padding: 18px;
+    }
+
+    .advanced-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
     .field {
@@ -330,67 +216,19 @@
       gap: 8px;
     }
 
-    .field.span-2 {
-      grid-column: span 2;
+    .field.full {
+      grid-column: 1 / -1;
     }
 
     label {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #4c2d8f;
-    }
-
-    .section-block {
-      grid-column: span 2;
-      padding: 18px;
-      border: 1px solid rgba(118, 95, 78, 0.16);
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 10px 24px rgba(140, 98, 68, 0.08);
-    }
-
-    .section-title {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0 0 10px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 1.02rem;
-      letter-spacing: 0.01em;
-      color: #38251d;
-      background: rgba(255, 255, 255, 0.65);
-    }
-
-    .section-title.danger-title {
-      background: linear-gradient(90deg, rgba(255, 139, 122, 0.28), rgba(255, 255, 255, 0.82));
-      color: #7a1f31;
-      box-shadow: 0 6px 16px rgba(221, 96, 121, 0.16);
-    }
-
-    .section-help {
-      margin: 0 0 16px;
-      color: var(--text-soft);
-      line-height: 1.6;
-      font-size: 0.98rem;
-    }
-
-    .helper {
-      margin: 0 0 4px;
-      color: var(--text-soft);
-      font-size: 0.92rem;
-      line-height: 1.55;
-    }
-
-    .beginner-only[hidden] {
-      display: none !important;
+      font-weight: 900;
+      color: #4a2c6f;
     }
 
     input,
-    select,
     textarea {
       width: 100%;
-      border: 2px solid rgba(163, 141, 122, 0.34);
+      border: 2px solid rgba(130, 106, 90, 0.24);
       border-radius: 18px;
       padding: 14px 16px;
       background: rgba(255, 255, 255, 0.96);
@@ -400,1842 +238,361 @@
     }
 
     input:focus,
-    select:focus,
     textarea:focus {
       outline: none;
-      border-color: #ff9d2e;
-      box-shadow: 0 0 0 4px rgba(255, 186, 104, 0.22);
+      border-color: #ffb33f;
+      box-shadow: 0 0 0 4px rgba(255, 204, 102, 0.22);
     }
 
     textarea {
-      min-height: 170px;
+      min-height: 92px;
       resize: vertical;
       line-height: 1.55;
     }
 
-    .small textarea {
-      min-height: 110px;
-    }
-
-    .outputs {
-      display: grid;
-      gap: 18px;
-    }
-
-    .file-card {
-      --file-accent-soft: rgba(255, 255, 255, 0.55);
-      border: 1px solid rgba(118, 95, 78, 0.15);
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.94);
-      overflow: hidden;
-      box-shadow: 0 10px 24px rgba(140, 98, 68, 0.08);
-    }
-
-    .file-head {
+    .grid-head {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(118, 95, 78, 0.12);
-      background: linear-gradient(90deg, var(--file-accent-soft), rgba(255, 255, 255, 0.7));
+      margin-bottom: 12px;
     }
 
-    .file-name {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #7b4cff;
-      word-break: break-word;
+    .grid-head p {
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 70ch;
     }
 
-    .file-card textarea {
-      min-height: 240px;
-      border: 0;
-      border-radius: 0;
-      background: transparent;
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
 
-    .file-card textarea.termux-output {
-      min-height: 360px;
-    }
-
-    .file-card.theme-pink {
-      --file-accent-soft: rgba(255, 136, 189, 0.22);
-      background: linear-gradient(180deg, rgba(255, 245, 250, 0.98) 0%, rgba(255, 236, 246, 0.98) 100%);
-    }
-
-    .file-card.theme-purple {
-      --file-accent-soft: rgba(179, 135, 255, 0.2);
-      background: linear-gradient(180deg, rgba(248, 244, 255, 0.98) 0%, rgba(239, 232, 255, 0.98) 100%);
-    }
-
-    .file-card.theme-teal {
-      --file-accent-soft: rgba(66, 212, 200, 0.2);
-      background: linear-gradient(180deg, rgba(241, 255, 253, 0.98) 0%, rgba(229, 248, 245, 0.98) 100%);
-    }
-
-    .reward-card {
+    .prompt-card {
+      padding: 18px;
       position: relative;
     }
 
-    .reward-card::after {
-      content: "Nice work";
+    .prompt-card::before {
+      content: "";
       position: absolute;
-      top: 16px;
-      right: 18px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #ffe286 0%, #ffb1cf 100%);
-      color: #633249;
-      font-size: 0.8rem;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 10px;
+      background: var(--accent);
+    }
+
+    .prompt-card h2 {
+      font-size: 1.28rem;
+      line-height: 1.2;
+      margin-top: 8px;
+    }
+
+    .prompt-card .eli5 {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .prompt-actions button {
+      flex: 1 1 210px;
+      min-width: 0;
+    }
+
+    details.preview {
+      margin-top: 14px;
+      border: 1px solid rgba(100, 76, 55, 0.12);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+    }
+
+    details.preview summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
       font-weight: 800;
-      letter-spacing: 0.01em;
+      color: #53366a;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.72), var(--preview-band));
     }
 
-    .sticky-tools {
-      position: sticky;
-      top: 10px;
+    details.preview summary::-webkit-details-marker {
+      display: none;
     }
 
-    .status-line {
-      margin-top: 10px;
-      min-height: 1.4em;
-      color: #e14d81;
-      font-size: 0.96rem;
-      font-weight: 700;
+    .preview-body {
+      padding: 0 12px 12px;
     }
 
-    .micro-note {
-      margin-top: 10px;
-      font-size: 0.88rem;
-      color: var(--text-soft);
-    }
-
-    .import-status {
-      min-height: 1.5em;
-      color: #e14d81;
+    .preview-body textarea {
+      min-height: 260px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
       font-size: 0.95rem;
-      line-height: 1.45;
-      font-weight: 700;
     }
 
-    .theme-sky {
-      --card-accent: #69c8ff;
-      --card-accent-soft: rgba(105, 200, 255, 0.28);
-      --card-bg-1: rgba(240, 250, 255, 0.98);
-      --card-bg-2: rgba(232, 246, 255, 0.98);
+    .sun {
+      --accent: var(--sun);
+      --preview-band: rgba(255, 216, 77, 0.22);
     }
 
-    .theme-yellow {
-      --card-accent: #ffd84d;
-      --card-accent-soft: rgba(255, 216, 77, 0.3);
-      --card-bg-1: rgba(255, 252, 227, 0.98);
-      --card-bg-2: rgba(255, 247, 201, 0.98);
+    .sky {
+      --accent: var(--sky);
+      --preview-band: rgba(110, 210, 255, 0.22);
     }
 
-    .theme-green {
-      --card-accent: #7ae17d;
-      --card-accent-soft: rgba(122, 225, 125, 0.28);
-      --card-bg-1: rgba(242, 255, 240, 0.98);
-      --card-bg-2: rgba(228, 249, 224, 0.98);
+    .green {
+      --accent: var(--green);
+      --preview-band: rgba(123, 226, 125, 0.2);
     }
 
-    .theme-coral {
-      --card-accent: #ff8b7a;
-      --card-accent-soft: rgba(255, 139, 122, 0.28);
-      --card-bg-1: rgba(255, 244, 241, 0.98);
-      --card-bg-2: rgba(255, 231, 227, 0.98);
+    .coral {
+      --accent: var(--coral);
+      --preview-band: rgba(255, 143, 125, 0.2);
     }
 
-    .theme-orange {
-      --card-accent: #ffb44f;
-      --card-accent-soft: rgba(255, 180, 79, 0.28);
-      --card-bg-1: rgba(255, 248, 238, 0.98);
-      --card-bg-2: rgba(255, 237, 211, 0.98);
-    }
-
-    .theme-purple {
-      --card-accent: #b387ff;
-      --card-accent-soft: rgba(179, 135, 255, 0.26);
-      --card-bg-1: rgba(248, 243, 255, 0.98);
-      --card-bg-2: rgba(239, 230, 255, 0.98);
-    }
-
-    .theme-pink {
-      --card-accent: #ff88bd;
-      --card-accent-soft: rgba(255, 136, 189, 0.24);
-      --card-bg-1: rgba(255, 244, 251, 0.98);
-      --card-bg-2: rgba(255, 231, 244, 0.98);
-    }
-
-    .theme-teal {
-      --card-accent: #42d4c8;
-      --card-accent-soft: rgba(66, 212, 200, 0.24);
-      --card-bg-1: rgba(239, 255, 253, 0.98);
-      --card-bg-2: rgba(224, 248, 246, 0.98);
-    }
-
-    .theme-sky .section-title,
-    .theme-yellow .section-title,
-    .theme-green .section-title,
-    .theme-coral .section-title,
-    .theme-orange .section-title,
-    .theme-purple .section-title,
-    .theme-pink .section-title,
-    .theme-teal .section-title {
-      background: linear-gradient(90deg, var(--card-accent-soft), rgba(255, 255, 255, 0.7));
-    }
-
-    .panel.theme-sky,
-    .panel.theme-yellow,
-    .panel.theme-green,
-    .panel.theme-coral,
-    .panel.theme-orange,
-    .panel.theme-purple,
-    .panel.theme-pink,
-    .panel.theme-teal,
-    .section-block.theme-sky,
-    .section-block.theme-yellow,
-    .section-block.theme-green,
-    .section-block.theme-coral,
-    .section-block.theme-orange,
-    .section-block.theme-purple,
-    .section-block.theme-pink,
-    .section-block.theme-teal {
-      border-color: rgba(118, 95, 78, 0.12);
-    }
-
-    @media (max-width: 980px) {
-      .agent-fill-grid,
-      .sub-panels,
-      .layout {
+    @media (max-width: 860px) {
+      .prompt-grid,
+      .advanced-grid {
         grid-template-columns: 1fr;
       }
-
-      .sticky-tools {
-        position: static;
-      }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 700px) {
       .app {
-        width: min(100% - 16px, 100%);
-        padding-top: 12px;
+        width: min(100% - 14px, 100%);
+        padding-top: 10px;
       }
 
-      .form-grid {
-        grid-template-columns: 1fr;
+      .hero,
+      .advanced,
+      .prompt-card {
+        border-radius: 22px;
       }
 
-      .select-row {
-        grid-template-columns: 1fr;
-      }
-
-      .field.span-2 {
-        grid-column: span 1;
-      }
-
-      .section-block {
-        grid-column: span 1;
-      }
-
-      .hero-body,
-      .panel-body {
-        padding: 14px;
+      .hero,
+      .prompt-card,
+      .advanced-body {
+        padding-left: 14px;
+        padding-right: 14px;
       }
 
       button {
         width: 100%;
-      }
-
-      .file-head {
-        flex-direction: column;
-        align-items: stretch;
       }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <section class="hero theme-teal">
-      <div class="hero-head">
-        <h1>Agent Handover Pack</h1>
+    <header class="hero">
+      <div class="title-row">
+        <div>
+          <h1>Agent Handover Pack</h1>
+          <p class="tagline">A tiny prompt-control tool for repo handoffs. Fill the optional context once, then copy the exact prompt you want the next agent to follow.</p>
+        </div>
       </div>
-      <div class="hero-body">
-        <p>This tool helps you move safely between Claude, Codex, and OpenCode. It creates handover files for your repo so the next AI reads the right context before it edits anything.</p>
-        <div class="toggle-row">
-          <label class="toggle-label" for="beginnerMode">
-            <input id="beginnerMode" type="checkbox" checked>
-            <span>Beginner mode</span>
-          </label>
-          <div id="beginnerBadge" class="beginner-badge">Beginner Mode: ON</div>
-          <div class="toggle-copy">When on, the page shows simpler help text and more guided example placeholders.</div>
-        </div>
-        <div class="legend" aria-label="Colour legend">
-          <div class="legend-pill">Blue = auto-fill</div>
-          <div class="legend-pill">Yellow = project</div>
-          <div class="legend-pill">Green = task</div>
-          <div class="legend-pill">Red = caution</div>
-          <div class="legend-pill">Orange = testing</div>
-          <div class="legend-pill">Purple = git</div>
-          <div class="legend-pill">Pink = outputs</div>
-          <div class="legend-pill">Teal = what to do next</div>
-        </div>
-        <div class="top-actions">
-          <button id="loadExampleBtn" class="primary" type="button">Load Example HOME ROW Template</button>
-          <button id="copyAllBtn" type="button">Copy All Generated Files</button>
-          <button id="copyPromptBtn" type="button">Copy ONE_SHOT_AGENT_PROMPT Only</button>
-          <button id="downloadAllBtn" type="button">Download All Files</button>
-          <button id="clearBtn" class="warn" type="button">Clear Form</button>
-        </div>
-        <p class="meta">Autosave is on. Data is stored in localStorage key <code>agent-handover-pack-v1</code>.</p>
-        <p class="micro-note">ZIP download is not included because this tool uses no external libraries. “Download All Files” saves each markdown file separately using browser APIs.</p>
-        <div id="statusLine" class="status-line" aria-live="polite"></div>
+      <div class="hero-actions">
+        <button id="copyAllBtn" class="primary" type="button">Copy All Prompts</button>
+        <button id="resetAdvancedBtn" class="coral" type="button">Reset Advanced Options</button>
       </div>
+      <p class="mini-note">Autosaves advanced options in this browser. No build step. No external libraries.</p>
+      <div id="statusLine" class="status" aria-live="polite"></div>
+    </header>
+
+    <details class="advanced" id="advancedSection">
+      <summary>Advanced Options</summary>
+      <div class="advanced-body">
+        <div class="grid-head">
+          <p>Optional context that gets inserted near the top of every copied prompt. Keep it short and repo-specific.</p>
+        </div>
+        <div class="advanced-grid">
+          <div class="field">
+            <label for="projectName">Project name</label>
+            <input id="projectName" type="text" placeholder="Agent Handover Pack">
+          </div>
+          <div class="field">
+            <label for="repoPath">Repo path</label>
+            <input id="repoPath" type="text" placeholder="/path/to/repo">
+          </div>
+          <div class="field">
+            <label for="runCommand">Run command</label>
+            <input id="runCommand" type="text" placeholder="python3 -m http.server 8000">
+          </div>
+          <div class="field">
+            <label for="testCommand">Test command</label>
+            <input id="testCommand" type="text" placeholder="npm test">
+          </div>
+          <div class="field full">
+            <label for="sacredRules">Sacred rules / danger zone</label>
+            <textarea id="sacredRules" placeholder="Do not touch ending logic&#10;Do not refactor TypingScene unless asked"></textarea>
+          </div>
+          <div class="field full">
+            <label for="currentTask">Current task</label>
+            <textarea id="currentTask" placeholder="Continue the current repo work with the smallest safe change."></textarea>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <section class="prompt-grid" aria-label="Prompt cards">
+      <article class="prompt-card sun">
+        <h2>1. Read Repo &amp; Get Up To Date</h2>
+        <p class="eli5">Ask the agent to read the right docs first, check git state, and only inspect code if it really needs to.</p>
+        <div class="prompt-actions">
+          <button type="button" class="primary" data-copy="read">Copy Prompt</button>
+        </div>
+        <details class="preview">
+          <summary>Preview prompt text</summary>
+          <div class="preview-body">
+            <textarea id="preview-read" readonly spellcheck="false"></textarea>
+          </div>
+        </details>
+      </article>
+
+      <article class="prompt-card sky">
+        <h2>2. Continue Safely</h2>
+        <p class="eli5">Tell the agent to explain its understanding first, name the files it expects to touch, and wait before editing.</p>
+        <div class="prompt-actions">
+          <button type="button" class="primary" data-copy="continue">Copy Prompt</button>
+        </div>
+        <details class="preview">
+          <summary>Preview prompt text</summary>
+          <div class="preview-body">
+            <textarea id="preview-continue" readonly spellcheck="false"></textarea>
+          </div>
+        </details>
+      </article>
+
+      <article class="prompt-card green">
+        <h2>3. Git Commit / Push Safely</h2>
+        <p class="eli5">Use this when you only want a git review first, then a careful commit and push if you approve it.</p>
+        <div class="prompt-actions">
+          <button type="button" class="primary" data-copy="git">Copy Prompt</button>
+        </div>
+        <details class="preview">
+          <summary>Preview prompt text</summary>
+          <div class="preview-body">
+            <textarea id="preview-git" readonly spellcheck="false"></textarea>
+          </div>
+        </details>
+      </article>
+
+      <article class="prompt-card coral">
+        <h2>4. Wrap Up Session</h2>
+        <p class="eli5">Use this when the work is done and you want a tidy summary, notes, checks, and next-step docs.</p>
+        <div class="prompt-actions">
+          <button type="button" class="primary" data-copy="wrap">Copy Prompt</button>
+        </div>
+        <details class="preview">
+          <summary>Preview prompt text</summary>
+          <div class="preview-body">
+            <textarea id="preview-wrap" readonly spellcheck="false"></textarea>
+          </div>
+        </details>
+      </article>
     </section>
-
-    <section class="panel theme-sky">
-      <div class="panel-head">
-        <h2>🤖 Agent Auto-Fill</h2>
-      </div>
-      <div class="panel-body stack">
-        <p>Ask your coding agent to read the repo and generate Agent Fill JSON. Paste it here, then click Import. The form will fill itself.</p>
-        <div class="steps">
-          <div class="step">
-            <strong>1. First ask the agent to generate JSON</strong>
-            Use the prompt below with Claude, Codex, or OpenCode.
-          </div>
-          <div class="step">
-            <strong>2. Paste JSON into this box</strong>
-            The tool accepts raw JSON only, not markdown-wrapped output.
-          </div>
-          <div class="step">
-            <strong>3. Click Import</strong>
-            Matching form fields will update. Unknown keys are ignored safely.
-          </div>
-          <div class="step">
-            <strong>4. Review the form</strong>
-            Check that the imported values make sense before generating files.
-          </div>
-          <div class="step">
-            <strong>5. Generate handover files</strong>
-            Copy or download the markdown files once the form looks right.
-          </div>
-        </div>
-
-        <div class="agent-fill-grid">
-          <section class="file-card">
-            <div class="file-head">
-              <div class="file-name">Paste Agent Fill JSON</div>
-              <div class="file-actions">
-                <button id="importJsonBtn" type="button">Import Agent Fill JSON</button>
-                <button id="loadSampleJsonBtn" type="button">Load Sample Agent Fill JSON</button>
-                <button id="clearImportBtn" type="button">Clear Import Box</button>
-              </div>
-            </div>
-            <div class="panel-body stack">
-              <p class="helper beginner-only">Paste the JSON exactly as returned by the agent. If the JSON is valid, only the included fields will update.</p>
-              <textarea id="agentFillJson" placeholder='{"projectName":"HOME ROW","currentBranch":"main"}'></textarea>
-              <div id="importStatus" class="import-status" aria-live="polite"></div>
-            </div>
-          </section>
-
-          <section class="file-card">
-            <div class="file-head">
-              <div class="file-name">Agent Fill Prompt</div>
-              <div class="file-actions">
-                <button id="copyAgentPromptBtn" type="button">Copy Agent Fill Prompt</button>
-                <button id="exportJsonBtn" type="button">Export Current Form as JSON</button>
-              </div>
-            </div>
-            <textarea id="agentPromptOutput" readonly></textarea>
-          </section>
-        </div>
-      </div>
-    </section>
-
-    <div class="sub-panels">
-      <section class="panel theme-teal">
-        <div class="panel-head">
-          <h2>🧭 Simple Intro</h2>
-        </div>
-        <div class="panel-body">
-          <p>You fill in what the project is, what has already happened, and what the next AI must avoid breaking. The tool then writes repo-friendly handover files that help the next AI slow down, read first, and edit safely.</p>
-        </div>
-      </section>
-
-      <section class="panel theme-teal">
-        <div class="panel-head">
-          <h2>🧭 How This Works</h2>
-        </div>
-        <div class="panel-body">
-          <div class="steps">
-            <div class="step">
-              <strong>Step 1: Describe the project</strong>
-              Say what repo this is, who worked on it last, and any important background.
-            </div>
-            <div class="step">
-              <strong>Step 2: Describe the current task</strong>
-              Explain what is being worked on now, what is risky, and what comes next.
-            </div>
-            <div class="step">
-              <strong>Step 3: Generate handover files</strong>
-              The tool builds markdown files and Termux save commands for you.
-            </div>
-            <div class="step">
-              <strong>Step 4: Put those files in your repo and commit them</strong>
-              Add the files to the repo root, commit them, and paste the next-agent prompt into the next AI.
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div class="layout">
-      <section class="panel theme-yellow">
-        <div class="panel-head">
-          <h2>📘 Project Form</h2>
-        </div>
-        <div class="panel-body">
-          <form id="handoverForm" class="form-grid">
-            <section class="section-block theme-yellow">
-              <h3 class="section-title">📘 Project Basics</h3>
-              <p class="section-help">Start with the simple facts. This tells the next AI what repo it is looking at and who is passing work to whom.</p>
-              <div class="form-grid">
-                <div class="field">
-                  <label for="projectName">Project name</label>
-                  <p class="helper beginner-only">Use the real project name so the generated files look clear and trustworthy.</p>
-                  <input id="projectName" name="projectName" type="text" placeholder="e.g. HOME ROW">
-                </div>
-                <div class="field">
-                  <label for="projectPath">Project path</label>
-                  <p class="helper beginner-only">This is the folder where the repo lives on your machine.</p>
-                  <input id="projectPath" name="projectPath" type="text" placeholder="/path/to/repo">
-                </div>
-
-                <div class="field">
-                  <label for="currentBranch">Current branch</label>
-                  <p class="helper beginner-only">If you are not sure, use the branch shown by `git status`.</p>
-                  <input id="currentBranch" name="currentBranch" type="text" placeholder="main or feature/small-fix">
-                </div>
-                <div class="field">
-                  <label for="mainRepoUrl">Main repo URL</label>
-                  <p class="helper beginner-only">Optional but useful if the next AI needs to know which repo this is.</p>
-                  <input id="mainRepoUrl" name="mainRepoUrl" type="text" placeholder="https://github.com/example/repo">
-                </div>
-
-                <div class="field">
-                  <label for="primaryAgent">Who worked on this last?</label>
-                  <p class="helper beginner-only">Pick the last AI or person who was actively doing the work.</p>
-                  <select id="primaryAgent" name="primaryAgent">
-                    <option value="">Select</option>
-                    <option>Claude</option>
-                    <option>Codex</option>
-                    <option>OpenCode</option>
-                    <option>Manual</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="nextAgent">Who will work on this next?</label>
-                  <p class="helper beginner-only">Pick the AI or person who should read the handover next.</p>
-                  <select id="nextAgent" name="nextAgent">
-                    <option value="">Select</option>
-                    <option>Claude</option>
-                    <option>Codex</option>
-                    <option>OpenCode</option>
-                    <option>Manual</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
-            <section class="section-block theme-green">
-              <h3 class="section-title">✏️ Current Task</h3>
-              <p class="section-help">Explain the job in plain English. The goal here is to stop the next AI from guessing and making broad changes.</p>
-              <div class="form-grid">
-                <div class="field span-2">
-                  <label for="currentTaskGoal">Current task goal</label>
-                  <p class="helper beginner-only">What are you actually trying to get done right now?</p>
-                  <textarea id="currentTaskGoal" name="currentTaskGoal" placeholder="Example: Fix the typing scene bug without changing the story flow or ending logic."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="currentStatus">Current status</label>
-                  <p class="helper beginner-only">Say what is already done, what is still messy, and what is blocked.</p>
-                  <textarea id="currentStatus" name="currentStatus" placeholder="Example: The bug is narrowed down to one scene file, but the final fix is not done yet."></textarea>
-                </div>
-
-                <div class="field span-2">
-                  <label for="exactNextTask">Exact next task</label>
-                  <p class="helper beginner-only">Describe the smallest next safe thing to do, not the whole project.</p>
-                  <textarea id="exactNextTask" name="exactNextTask" placeholder="Example: Inspect TypingScene input handling and patch only the broken transition check."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="acceptanceCriteria">How you know the task is finished</label>
-                  <p class="helper beginner-only">Write down the concrete signs that the next step is done and safe.</p>
-                  <textarea id="acceptanceCriteria" name="acceptanceCriteria" placeholder="Example: The scene transition works, no other route changed, and checks still pass."></textarea>
-                </div>
-              </div>
-            </section>
-
-            <section class="section-block theme-coral">
-              <h3 class="section-title danger-title">🚧 Danger Zone, Boundaries, And Sacred Systems</h3>
-              <p class="section-help">Tell the next AI where it may need to work and where it must stay away. This is one of the most important safety sections.</p>
-              <div class="form-grid">
-                <div class="field span-2 small">
-                  <label for="filesChangedSoFar">Files changed so far</label>
-                  <p class="helper beginner-only">List files already touched, even if the edits are incomplete or messy.</p>
-                  <textarea id="filesChangedSoFar" name="filesChangedSoFar" placeholder="src/main.js&#10;src/scenes/TypingScene.js"></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="filesLikelyInvolvedNext">Files the next agent may need to edit</label>
-                  <p class="helper beginner-only">Point to the likely files so the next AI does not wander into unrelated parts of the repo.</p>
-                  <textarea id="filesLikelyInvolvedNext" name="filesLikelyInvolvedNext" placeholder="Example: src/scenes/TypingScene.js and the route config file."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="mustNotTouch">Danger zone: files or systems not to touch</label>
-                  <p class="helper beginner-only">Name anything fragile, sacred, spoiler-heavy, or easy to break.</p>
-                  <textarea id="mustNotTouch" name="mustNotTouch" placeholder="Example: Ending logic, save migration code, payment flow, generated art exports."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="storyCanonConstraints">Story/canon constraints</label>
-                  <p class="helper beginner-only">Use this for lore rules, route rules, naming rules, and things that must stay canon-correct.</p>
-                  <textarea id="storyCanonConstraints" name="storyCanonConstraints" placeholder="Example: Preserve Mr Fingers naming and do not alter the witness statement route."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="technicalConstraints">Technical constraints</label>
-                  <p class="helper beginner-only">Use this for engineering limits like “no refactor”, “keep API shape”, or “no framework changes”.</p>
-                  <textarea id="technicalConstraints" name="technicalConstraints" placeholder="Example: Keep the fix small, no refactor, preserve current file structure."></textarea>
-                </div>
-              </div>
-            </section>
-
-            <section class="section-block theme-orange">
-              <h3 class="section-title">✅ Testing, Risks, And Acceptance</h3>
-              <p class="section-help">This section helps the next AI check the right things before it claims the work is safe.</p>
-              <div class="form-grid">
-                <div class="field span-2 small">
-                  <label for="knownRisks">Known risks</label>
-                  <p class="helper beginner-only">What is most likely to break if the next AI makes the wrong assumption?</p>
-                  <textarea id="knownRisks" name="knownRisks" placeholder="Example: A route fix could accidentally change ending progression."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="knownBugs">Known bugs</label>
-                  <p class="helper beginner-only">List bugs or weird behaviour that still exist right now.</p>
-                  <textarea id="knownBugs" name="knownBugs" placeholder="Example: Input sometimes stalls after a scene transition."></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="testsAlreadyRun">Tests already run</label>
-                  <p class="helper beginner-only">Include commands you ran and simple manual checks that already passed.</p>
-                  <textarea id="testsAlreadyRun" name="testsAlreadyRun" placeholder="Example: node --check src/main.js"></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="testsStillNeeded">Tests still needed</label>
-                  <p class="helper beginner-only">What still needs to be checked before the work is really safe?</p>
-                  <textarea id="testsStillNeeded" name="testsStillNeeded" placeholder="Example: Open the browser route and verify the scene transition works end to end."></textarea>
-                </div>
-
-                <div class="field span-2">
-                  <label for="manualBrowserRoute">Page or dev route to test in the browser</label>
-                  <p class="helper beginner-only">This can be the local URL, route, or page the next AI should open first.</p>
-                  <input id="manualBrowserRoute" name="manualBrowserRoute" type="text" placeholder="http://127.0.0.1:8000/">
-                </div>
-              </div>
-            </section>
-
-            <section class="section-block theme-purple">
-              <h3 class="section-title">🧰 Git, Commit, Pull, And Safety Notes</h3>
-              <p class="section-help">Add the commands and git notes that make the handover easier to use in real life.</p>
-              <div class="form-grid">
-                <div class="field span-2 small">
-                  <label for="usefulCommands">Useful commands</label>
-                  <p class="helper beginner-only">Add setup, run, check, and git commands the next AI will probably need.</p>
-                  <textarea id="usefulCommands" name="usefulCommands" placeholder="cd /path/to/repo&#10;python3 -m http.server 8000&#10;git status --short"></textarea>
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="gitStatusNotes">Git status notes</label>
-                  <p class="helper beginner-only">Use this to warn about dirty files, other people’s changes, or branches that need care.</p>
-                  <textarea id="gitStatusNotes" name="gitStatusNotes" placeholder="Example: Worktree is dirty. Do not revert unrelated local edits."></textarea>
-                </div>
-
-                <div class="field">
-                  <label for="lastCommitHash">Last commit hash</label>
-                  <p class="helper beginner-only">Helpful as a reference point if someone later needs to roll back.</p>
-                  <input id="lastCommitHash" name="lastCommitHash" type="text" placeholder="abc1234 or HEAD">
-                </div>
-                <div class="field">
-                  <label for="rollbackInstructions">Rollback instructions</label>
-                  <p class="helper beginner-only">Write the safest simple rollback plan you can.</p>
-                  <input id="rollbackInstructions" name="rollbackInstructions" type="text" placeholder="Use git diff first, then revert only the smallest needed change.">
-                </div>
-
-                <div class="field span-2 small">
-                  <label for="additionalNotes">Additional notes</label>
-                  <p class="helper beginner-only">Anything else the next AI should know before it even thinks about editing.</p>
-                  <textarea id="additionalNotes" name="additionalNotes" placeholder="Example: Ask for approval before touching route logic or ending-related code."></textarea>
-                </div>
-              </div>
-            </section>
-
-            <section class="section-block theme-purple">
-              <h3 class="section-title">🧰 Workflow Guardrails</h3>
-              <p class="section-help">Choose how cautious the next AI should be, how much git discipline to follow, and which HOME ROW sacred systems must stay protected.</p>
-              <div class="form-grid">
-                <div class="field">
-                  <label for="workflowMode">Workflow mode</label>
-                  <p class="helper beginner-only">Pick the kind of job the next AI is allowed to do.</p>
-                  <select id="workflowMode" name="workflowMode">
-                    <option>Start new task</option>
-                    <option>Continue unfinished task</option>
-                    <option>Review existing changes</option>
-                    <option>Fix bug</option>
-                    <option>Commit current work</option>
-                    <option>Pull latest safely</option>
-                    <option>Handover to another agent</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="safetyLevel">Safety level</label>
-                  <p class="helper beginner-only">Default is the safest option: read and plan first.</p>
-                  <select id="safetyLevel" name="safetyLevel">
-                    <option>Very cautious: read-only plan first</option>
-                    <option>Normal: plan then small edit</option>
-                    <option>Fast: obvious tiny fix only</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="taskSizeLimit">Task size limit</label>
-                  <p class="helper beginner-only">If the work grows past this size, the agent should stop and ask first.</p>
-                  <select id="taskSizeLimit" name="taskSizeLimit">
-                    <option>One file only</option>
-                    <option>Small: 1-3 files</option>
-                    <option>Medium: 3-6 files</option>
-                    <option>Large: ask first</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="minimiseTokens">Token discipline</label>
-                  <div class="check-grid">
-                    <label class="check-item" for="minimiseTokens">
-                      <input id="minimiseTokens" name="minimiseTokens" type="checkbox" checked>
-                      <span>Minimise wasted tokens</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="field span-2">
-                  <label>Git Discipline</label>
-                  <p class="helper beginner-only">These reminders get folded into the generated prompts so the agent handles git carefully.</p>
-                  <div class="select-row">
-                    <div class="check-grid">
-                      <label class="check-item" for="gitCheckStatusFirst">
-                        <input id="gitCheckStatusFirst" name="gitCheckStatusFirst" type="checkbox" checked>
-                        <span>Check git status first</span>
-                      </label>
-                      <label class="check-item" for="gitPullOnlyIfClean">
-                        <input id="gitPullOnlyIfClean" name="gitPullOnlyIfClean" type="checkbox" checked>
-                        <span>Pull only if working tree is clean</span>
-                      </label>
-                      <label class="check-item" for="gitDoNotStash">
-                        <input id="gitDoNotStash" name="gitDoNotStash" type="checkbox" checked>
-                        <span>Do not stash unless asked</span>
-                      </label>
-                      <label class="check-item" for="gitDoNotCommit">
-                        <input id="gitDoNotCommit" name="gitDoNotCommit" type="checkbox" checked>
-                        <span>Do not commit unless asked</span>
-                      </label>
-                    </div>
-                    <div class="check-grid">
-                      <label class="check-item" for="gitShowChangedFiles">
-                        <input id="gitShowChangedFiles" name="gitShowChangedFiles" type="checkbox" checked>
-                        <span>Show changed files</span>
-                      </label>
-                      <label class="check-item" for="gitRunRelevantChecks">
-                        <input id="gitRunRelevantChecks" name="gitRunRelevantChecks" type="checkbox" checked>
-                        <span>Run relevant checks</span>
-                      </label>
-                      <label class="check-item" for="gitCommitRelatedFilesOnly">
-                        <input id="gitCommitRelatedFilesOnly" name="gitCommitRelatedFilesOnly" type="checkbox" checked>
-                        <span>Commit related files only</span>
-                      </label>
-                      <label class="check-item" for="gitShowFinalStatus">
-                        <input id="gitShowFinalStatus" name="gitShowFinalStatus" type="checkbox" checked>
-                        <span>Show final git status</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="field span-2">
-                  <label>HOME ROW Sacred Systems Preset</label>
-                  <p class="helper beginner-only">Checked items are added into the generated danger-zone and constraints so the next AI treats them as protected.</p>
-                  <div class="select-row">
-                    <div class="check-grid">
-                      <label class="check-item" for="sacredEndingLogic">
-                        <input id="sacredEndingLogic" name="sacredEndingLogic" type="checkbox" checked>
-                        <span>Do not change ending logic</span>
-                      </label>
-                      <label class="check-item" for="sacredActProgression">
-                        <input id="sacredActProgression" name="sacredActProgression" type="checkbox" checked>
-                        <span>Do not change act progression</span>
-                      </label>
-                      <label class="check-item" for="sacredRenameAssets">
-                        <input id="sacredRenameAssets" name="sacredRenameAssets" type="checkbox" checked>
-                        <span>Do not rename assets</span>
-                      </label>
-                      <label class="check-item" for="sacredMrFingersFilenames">
-                        <input id="sacredMrFingersFilenames" name="sacredMrFingersFilenames" type="checkbox" checked>
-                        <span>Do not change Mr Fingers sprite filenames</span>
-                      </label>
-                    </div>
-                    <div class="check-grid">
-                      <label class="check-item" for="sacredWitnessStatement">
-                        <input id="sacredWitnessStatement" name="sacredWitnessStatement" type="checkbox" checked>
-                        <span>Do not alter witness statement route</span>
-                      </label>
-                      <label class="check-item" for="sacredStoryCanon">
-                        <input id="sacredStoryCanon" name="sacredStoryCanon" type="checkbox" checked>
-                        <span>Do not rewrite story canon</span>
-                      </label>
-                      <label class="check-item" for="sacredTypingScene">
-                        <input id="sacredTypingScene" name="sacredTypingScene" type="checkbox" checked>
-                        <span>Do not refactor TypingScene unless explicitly asked</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </form>
-        </div>
-      </section>
-
-      <section class="panel sticky-tools theme-pink">
-        <div class="panel-head">
-          <h2>📦 Generated Files</h2>
-        </div>
-        <div class="panel-body stack">
-          <section class="file-card theme-teal">
-            <div class="file-head">
-              <div class="file-name">🧭 What Do I Do With These Files?</div>
-            </div>
-            <div class="panel-body">
-              <p class="note">1. Copy or download the files.</p>
-              <p class="note">2. Put them in the root of your project repo.</p>
-              <p class="note">3. Read <code>RUNBOOK_FOR_MURPHY.md</code> for the human step-by-step workflow.</p>
-              <p class="note">4. Commit them with git.</p>
-              <p class="note">5. Paste <code>ONE_SHOT_AGENT_PROMPT.md</code> or <code>MASTER_AGENT_PROMPT.md</code> into the next AI before asking it to edit.</p>
-            </div>
-          </section>
-          <div class="top-actions tight">
-            <button id="copyTermuxBtn" type="button">Copy All Termux Save Commands</button>
-            <button id="copyMasterPromptBtn" type="button">Copy Master Agent Prompt</button>
-            <button id="copyRunbookBtn" type="button">Copy RUNBOOK_FOR_MURPHY.md</button>
-            <button id="copyCommitAssistantBtn" type="button">Copy Commit Assistant Prompt</button>
-            <button id="copySafePullBtn" type="button">Copy Safe Pull Prompt</button>
-          </div>
-          <div class="outputs reward-card" id="outputs"></div>
-          <section class="file-card theme-purple">
-            <div class="file-head">
-              <div class="file-name">🧰 Commit Assistant Prompt</div>
-              <div class="file-actions">
-                <button id="copyCommitAssistantCardBtn" type="button">Copy</button>
-              </div>
-            </div>
-            <textarea id="commitAssistantOutput" readonly></textarea>
-          </section>
-          <section class="file-card theme-purple">
-            <div class="file-head">
-              <div class="file-name">🧰 Safe Pull Prompt</div>
-              <div class="file-actions">
-                <button id="copySafePullCardBtn" type="button">Copy</button>
-              </div>
-            </div>
-            <textarea id="safePullOutput" readonly></textarea>
-          </section>
-          <section class="file-card theme-pink">
-            <div class="file-head">
-              <div class="file-name">📦 Termux Copy-Paste Commands</div>
-              <div class="file-actions">
-                <button id="copyTermuxCardBtn" type="button">Copy</button>
-              </div>
-            </div>
-            <textarea id="termuxOutput" class="termux-output" readonly></textarea>
-          </section>
-        </div>
-      </section>
-    </div>
   </div>
 
   <script>
     (function () {
       "use strict";
 
-      var STORAGE_KEY = "agent-handover-pack-v1";
-      var form = document.getElementById("handoverForm");
-      var outputs = document.getElementById("outputs");
-      var termuxOutput = document.getElementById("termuxOutput");
-      var commitAssistantOutput = document.getElementById("commitAssistantOutput");
-      var safePullOutput = document.getElementById("safePullOutput");
-      var agentFillJson = document.getElementById("agentFillJson");
-      var agentPromptOutput = document.getElementById("agentPromptOutput");
-      var importStatus = document.getElementById("importStatus");
-      var statusLine = document.getElementById("statusLine");
-      var beginnerBadge = document.getElementById("beginnerBadge");
-      var loadExampleBtn = document.getElementById("loadExampleBtn");
-      var copyAllBtn = document.getElementById("copyAllBtn");
-      var copyPromptBtn = document.getElementById("copyPromptBtn");
-      var downloadAllBtn = document.getElementById("downloadAllBtn");
-      var copyTermuxBtn = document.getElementById("copyTermuxBtn");
-      var copyMasterPromptBtn = document.getElementById("copyMasterPromptBtn");
-      var copyRunbookBtn = document.getElementById("copyRunbookBtn");
-      var copyCommitAssistantBtn = document.getElementById("copyCommitAssistantBtn");
-      var copySafePullBtn = document.getElementById("copySafePullBtn");
-      var copyCommitAssistantCardBtn = document.getElementById("copyCommitAssistantCardBtn");
-      var copySafePullCardBtn = document.getElementById("copySafePullCardBtn");
-      var copyTermuxCardBtn = document.getElementById("copyTermuxCardBtn");
-      var importJsonBtn = document.getElementById("importJsonBtn");
-      var loadSampleJsonBtn = document.getElementById("loadSampleJsonBtn");
-      var copyAgentPromptBtn = document.getElementById("copyAgentPromptBtn");
-      var clearImportBtn = document.getElementById("clearImportBtn");
-      var exportJsonBtn = document.getElementById("exportJsonBtn");
-      var clearBtn = document.getElementById("clearBtn");
-      var beginnerMode = document.getElementById("beginnerMode");
-      var beginnerOnlyNodes = document.querySelectorAll(".beginner-only");
-
-      var fieldNames = [
-        "projectName",
-        "projectPath",
-        "currentBranch",
-        "mainRepoUrl",
-        "primaryAgent",
-        "nextAgent",
-        "currentTaskGoal",
-        "currentStatus",
-        "filesChangedSoFar",
-        "filesLikelyInvolvedNext",
-        "mustNotTouch",
-        "storyCanonConstraints",
-        "technicalConstraints",
-        "knownRisks",
-        "knownBugs",
-        "testsAlreadyRun",
-        "testsStillNeeded",
-        "manualBrowserRoute",
-        "exactNextTask",
-        "acceptanceCriteria",
-        "usefulCommands",
-        "gitStatusNotes",
-        "lastCommitHash",
-        "rollbackInstructions",
-        "additionalNotes",
-        "workflowMode",
-        "safetyLevel",
-        "taskSizeLimit",
-        "minimiseTokens",
-        "gitCheckStatusFirst",
-        "gitPullOnlyIfClean",
-        "gitDoNotStash",
-        "gitDoNotCommit",
-        "gitShowChangedFiles",
-        "gitRunRelevantChecks",
-        "gitCommitRelatedFilesOnly",
-        "gitShowFinalStatus",
-        "sacredEndingLogic",
-        "sacredActProgression",
-        "sacredRenameAssets",
-        "sacredMrFingersFilenames",
-        "sacredWitnessStatement",
-        "sacredStoryCanon",
-        "sacredTypingScene"
-      ];
-
-      var fileOrder = [
+      var STORAGE_KEY = "agent-handover-pack-simple-v1";
+      var DOCS_TO_READ = [
         "AGENTS.md",
+        "PROJECT_CONTEXT.md",
+        "HOME_ROW_CONTEXT.md",
         "CURRENT_TASK.md",
         "DEV_LOG.md",
+        "TODO.md",
         "TEST_ROUTES.md",
         "HANDOVER.md",
-        "ONE_SHOT_AGENT_PROMPT.md",
-        "MASTER_AGENT_PROMPT.md",
-        "RUNBOOK_FOR_MURPHY.md"
+        "MASTER_AGENT_PROMPT.md"
       ];
 
-      var defaultBeginnerMode = true;
-      var agentFillPrompt = [
-        "Read this repository and create Agent Fill JSON for my handover tool.",
-        "Do not edit files.",
-        "Inspect the repo enough to understand:",
-        "- project name",
-        "- project path",
-        "- current branch",
-        "- recent git status",
-        "- latest commit hash",
-        "- likely setup/run commands",
-        "- current task if CURRENT_TASK.md exists",
-        "- previous work if DEV_LOG.md exists",
-        "- project rules if AGENTS.md exists",
-        "- test routes if TEST_ROUTES.md exists",
-        "- handover notes if HANDOVER.md exists",
-        "- likely files involved",
-        "- dangerous files/systems not to touch",
-        "- known risks",
-        "- useful commands",
-        "- rollback instructions",
-        "",
-        "Return only valid JSON.",
-        "Do not wrap it in markdown.",
-        "Do not include commentary.",
-        "",
-        "Use these exact JSON keys:",
-        "projectName",
-        "projectPath",
-        "currentBranch",
-        "mainRepoUrl",
-        "primaryAgent",
-        "nextAgent",
-        "currentTaskGoal",
-        "currentStatus",
-        "filesChangedSoFar",
-        "filesLikelyInvolvedNext",
-        "dangerZone",
-        "storyCanonConstraints",
-        "technicalConstraints",
-        "knownRisks",
-        "knownBugs",
-        "testsAlreadyRun",
-        "testsStillNeeded",
-        "manualBrowserTestRoute",
-        "exactNextTask",
-        "acceptanceCriteria",
-        "usefulCommands",
-        "gitStatusNotes",
-        "lastCommitHash",
-        "rollbackInstructions",
-        "additionalNotes"
-      ].join("\n");
-      var sampleAgentFillJson = JSON.stringify({
-        projectName: "HOME ROW",
-        projectPath: "/Users/jamesmurphy/Desktop/Home Row",
-        currentBranch: "main",
-        mainRepoUrl: "https://github.com/example/home-row",
-        primaryAgent: "Claude",
-        nextAgent: "OpenCode",
-        currentTaskGoal: "Safely continue work on a story-aware horror typing tutor game without damaging narrative routes, act progression, or ending logic during agent handover.",
-        currentStatus: "A previous agent has already been working in the repo. The next agent should read the handover docs first, confirm understanding, and avoid editing until the risky areas are clear.",
-        filesChangedSoFar: "src/main.js\nsrc/scenes/TypingScene.js\nREADME notes or working handover notes",
-        filesLikelyInvolvedNext: "src/main.js\nsrc/scenes/TypingScene.js\nstory progression config files\nwitness statement route state handling",
-        dangerZone: "Ending logic unless explicitly requested\nAct progression sequencing\nWitness statement route branching\nAny unrelated files already modified by another agent",
-        storyCanonConstraints: "Preserve Mr Fingers sprite naming\nPreserve act progression and witness statement route\nDo not change the ending logic unless explicitly requested\nMaintain the story-aware horror tone and narrative beats",
-        technicalConstraints: "Keep changes small and local\nDo not refactor unless explicitly requested\nDo not use destructive git actions\nRead existing files before guessing behaviour\nDo not rewrite unrelated files",
-        knownRisks: "Breaking ending logic by touching the wrong route code\nRenaming Mr Fingers sprite references\nDamaging act progression or witness statement flow\nBroad edits by a new agent without enough repo context",
-        knownBugs: "Possible fragile route or scene transition logic near typing scene changes\nSome route behaviour may be easy to disturb indirectly",
-        testsAlreadyRun: "node --check src/main.js\nnode --check src/scenes/TypingScene.js\ngit status --short reviewed manually",
-        testsStillNeeded: "Run manual browser test of the main typing flow\nVerify act progression still advances correctly\nVerify witness statement route still works\nConfirm ending logic remains untouched unless required",
-        manualBrowserTestRoute: "http://127.0.0.1:8000/",
-        exactNextTask: "Read AGENTS.md, CURRENT_TASK.md, DEV_LOG.md, TEST_ROUTES.md, and HANDOVER.md first, then inspect the likely scene and progression files and propose the smallest safe next change.",
-        acceptanceCriteria: "Next agent can summarise the current state before editing\nProtected story logic is explicitly acknowledged\nOnly the smallest safe change is proposed\nVerification steps are clear and scoped",
-        usefulCommands: "cd \"/Users/jamesmurphy/Desktop/Home Row\"\npython3 -m http.server 8000\nnode --check src/main.js\nnode --check src/scenes/TypingScene.js\ngit status --short",
-        gitStatusNotes: "Assume the worktree may already be dirty.\nDo not revert Claude/OpenCode changes you do not own.\nInspect diff carefully before touching route or ending files.",
-        lastCommitHash: "HEAD",
-        rollbackInstructions: "Use git diff to isolate changes and revert only the smallest safe set. Avoid reset --hard unless explicitly approved.",
-        additionalNotes: "This sample is tuned for HOME ROW and Claude/OpenCode handover safety. New agents should read first, summarise understanding, identify risks, and wait before editing."
-      }, null, 2);
-      var placeholders = {
-        beginner: {
-          projectName: "e.g. HOME ROW",
-          projectPath: "/path/to/repo",
-          currentBranch: "main or feature/small-fix",
-          mainRepoUrl: "https://github.com/example/repo",
-          currentTaskGoal: "Example: Fix the typing scene bug without changing the story flow or ending logic.",
-          currentStatus: "Example: The bug is narrowed down to one scene file, but the final fix is not done yet.",
-          filesChangedSoFar: "src/main.js\nsrc/scenes/TypingScene.js",
-          filesLikelyInvolvedNext: "Example: src/scenes/TypingScene.js and the route config file.",
-          mustNotTouch: "Example: Ending logic, save migration code, payment flow, generated art exports.",
-          storyCanonConstraints: "Example: Preserve Mr Fingers naming and do not alter the witness statement route.",
-          technicalConstraints: "Example: Keep the fix small, no refactor, preserve current file structure.",
-          knownRisks: "Example: A route fix could accidentally change ending progression.",
-          knownBugs: "Example: Input sometimes stalls after a scene transition.",
-          testsAlreadyRun: "Example: node --check src/main.js",
-          testsStillNeeded: "Example: Open the browser route and verify the scene transition works end to end.",
-          manualBrowserRoute: "http://127.0.0.1:8000/",
-          exactNextTask: "Example: Inspect TypingScene input handling and patch only the broken transition check.",
-          acceptanceCriteria: "Example: The scene transition works, no other route changed, and checks still pass.",
-          usefulCommands: "cd /path/to/repo\npython3 -m http.server 8000\ngit status --short",
-          gitStatusNotes: "Example: Worktree is dirty. Do not revert unrelated local edits.",
-          lastCommitHash: "abc1234 or HEAD",
-          rollbackInstructions: "Use git diff first, then revert only the smallest needed change.",
-          additionalNotes: "Example: Ask for approval before touching route logic or ending-related code."
-        },
-        standard: {
-          projectName: "Project name",
-          projectPath: "/path/to/repo",
-          currentBranch: "branch name",
-          mainRepoUrl: "repo URL",
-          currentTaskGoal: "Describe the current goal.",
-          currentStatus: "Describe current progress and blockers.",
-          filesChangedSoFar: "List files changed so far.",
-          filesLikelyInvolvedNext: "List likely files for the next edit.",
-          mustNotTouch: "List risky files, routes, systems, or protected areas.",
-          storyCanonConstraints: "List story or naming constraints.",
-          technicalConstraints: "List technical limits or non-goals.",
-          knownRisks: "List known risks.",
-          knownBugs: "List known bugs or odd behaviour.",
-          testsAlreadyRun: "List checks already run.",
-          testsStillNeeded: "List checks still needed.",
-          manualBrowserRoute: "Browser route or local URL",
-          exactNextTask: "Describe the smallest next safe task.",
-          acceptanceCriteria: "List the task completion conditions.",
-          usefulCommands: "Useful setup, run, test, and git commands",
-          gitStatusNotes: "Notes about worktree state or local changes.",
-          lastCommitHash: "commit hash",
-          rollbackInstructions: "How to roll back safely.",
-          additionalNotes: "Anything else the next agent should know."
-        }
+      var stateFields = {
+        projectName: document.getElementById("projectName"),
+        repoPath: document.getElementById("repoPath"),
+        runCommand: document.getElementById("runCommand"),
+        testCommand: document.getElementById("testCommand"),
+        sacredRules: document.getElementById("sacredRules"),
+        currentTask: document.getElementById("currentTask")
       };
 
-      function escapeText(value) {
-        return (value || "").trim();
+      var statusLine = document.getElementById("statusLine");
+      var copyAllBtn = document.getElementById("copyAllBtn");
+      var resetAdvancedBtn = document.getElementById("resetAdvancedBtn");
+      var previewNodes = {
+        read: document.getElementById("preview-read"),
+        continue: document.getElementById("preview-continue"),
+        git: document.getElementById("preview-git"),
+        wrap: document.getElementById("preview-wrap")
+      };
+      var copyButtons = document.querySelectorAll("[data-copy]");
+
+      function trimText(value) {
+        return String(value || "").trim();
       }
 
-      function bulletsFromText(value, fallback) {
-        var lines = escapeText(value)
-          .split("\n")
-          .map(function (line) { return line.trim(); })
-          .filter(Boolean);
-
-        if (!lines.length) {
-          return "- " + fallback;
-        }
-
-        return lines.map(function (line) {
-          return "- " + line.replace(/^-+\s*/, "");
-        }).join("\n");
-      }
-
-      function quoteBlock(value, fallback) {
-        var text = escapeText(value) || fallback;
-        return text.split("\n").map(function (line) {
-          return "> " + line;
-        }).join("\n");
-      }
-
-      function commandBlock(value) {
-        var text = escapeText(value);
-        if (!text) {
-          return "```bash\n# Add project-specific commands here\n```";
-        }
-        return "```bash\n" + text + "\n```";
-      }
-
-      function getFormData() {
-        var data = {};
-        fieldNames.forEach(function (name) {
-          var element = form.elements[name];
-          if (!element) {
-            data[name] = "";
-          } else if (element.type === "checkbox") {
-            data[name] = !!element.checked;
-          } else {
-            data[name] = element.value;
-          }
-        });
-        data.__beginnerMode = beginnerMode.checked;
-        return data;
-      }
-
-      function setFormData(data) {
-        fieldNames.forEach(function (name) {
-          if (form.elements[name] && Object.prototype.hasOwnProperty.call(data, name)) {
-            if (form.elements[name].type === "checkbox") {
-              form.elements[name].checked = !!data[name];
-            } else {
-              form.elements[name].value = data[name];
-            }
-          }
-        });
-        if (Object.prototype.hasOwnProperty.call(data, "__beginnerMode")) {
-          beginnerMode.checked = !!data.__beginnerMode;
-        }
-      }
-
-      function normalizeImportKey(key) {
-        var raw = String(key || "").trim();
-        if (!raw) {
-          return "";
-        }
-
-        var compact = raw.toLowerCase().replace(/[^a-z0-9]/g, "");
-        var aliasMap = {
-          projectname: "projectName",
-          projectpath: "projectPath",
-          currentbranch: "currentBranch",
-          mainrepourl: "mainRepoUrl",
-          whoworkedonthislast: "primaryAgent",
-          primaryagent: "primaryAgent",
-          whowillworkonthisnext: "nextAgent",
-          nextagent: "nextAgent",
-          currenttaskgoal: "currentTaskGoal",
-          currentstatus: "currentStatus",
-          fileschangedsofar: "filesChangedSoFar",
-          filesthenextagentmayneedtoedit: "filesLikelyInvolvedNext",
-          fileslikelyinvolvednext: "filesLikelyInvolvedNext",
-          dangerzone: "mustNotTouch",
-          dangerzonefilesorsystemsnottotouch: "mustNotTouch",
-          mustnottouch: "mustNotTouch",
-          storycanonconstraints: "storyCanonConstraints",
-          technicalconstraints: "technicalConstraints",
-          knownrisks: "knownRisks",
-          knownbugs: "knownBugs",
-          testsalreadyrun: "testsAlreadyRun",
-          testsstillneeded: "testsStillNeeded",
-          pageordevroutetotestinthebrowser: "manualBrowserRoute",
-          manualbrowsertestroute: "manualBrowserRoute",
-          manualbrowsertestrouteurl: "manualBrowserRoute",
-          manualbrowserroute: "manualBrowserRoute",
-          exactnexttask: "exactNextTask",
-          acceptancecriteria: "acceptanceCriteria",
-          howyouknowthetaskisfinished: "acceptanceCriteria",
-          usefulcommands: "usefulCommands",
-          gitstatusnotes: "gitStatusNotes",
-          lastcommithash: "lastCommitHash",
-          rollbackinstructions: "rollbackInstructions",
-          additionalnotes: "additionalNotes"
-        };
-
-        return aliasMap[compact] || "";
-      }
-
-      function setImportStatus(message, isError) {
-        importStatus.textContent = message;
-        importStatus.style.color = isError ? "var(--danger)" : "var(--accent)";
-      }
-
-      function saveForm() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(getFormData()));
-        setStatus("Autosaved locally.");
-      }
-
-      function loadSavedForm() {
-        var raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-          beginnerMode.checked = defaultBeginnerMode;
-          applyBeginnerMode();
-          renderOutputs();
-          return;
-        }
-
-        try {
-          setFormData(JSON.parse(raw));
-          setStatus("Restored saved form data.");
-        } catch (error) {
-          setStatus("Saved data could not be restored.");
-        }
-
-        applyBeginnerMode();
-        renderOutputs();
-      }
-
-      function applyBeginnerMode() {
-        beginnerOnlyNodes.forEach(function (node) {
-          node.hidden = !beginnerMode.checked;
-        });
-        beginnerBadge.textContent = beginnerMode.checked ? "Beginner Mode: ON" : "Beginner Mode: OFF";
-        beginnerBadge.classList.toggle("is-off", !beginnerMode.checked);
-        applyPlaceholders();
-      }
-
-      function applyPlaceholders() {
-        var modeKey = beginnerMode.checked ? "beginner" : "standard";
-        var map = placeholders[modeKey];
-
-        Object.keys(map).forEach(function (name) {
-          var element = form.elements[name];
-          if (element) {
-            element.setAttribute("placeholder", map[name]);
-          }
-        });
-
-        agentFillJson.setAttribute(
-          "placeholder",
-          beginnerMode.checked
-            ? '{"projectName":"HOME ROW","currentBranch":"main","dangerZone":"Ending logic\\nWitness statement route"}'
-            : '{"projectName":"Project","currentBranch":"branch-name"}'
-        );
-      }
-
-      function getSacredSystemLines(data) {
-        var lines = [];
-
-        if (data.sacredEndingLogic) {
-          lines.push("Do not change ending logic unless explicitly requested.");
-        }
-        if (data.sacredActProgression) {
-          lines.push("Do not change act progression.");
-        }
-        if (data.sacredRenameAssets) {
-          lines.push("Do not rename assets.");
-        }
-        if (data.sacredMrFingersFilenames) {
-          lines.push("Do not change Mr Fingers sprite filenames.");
-        }
-        if (data.sacredWitnessStatement) {
-          lines.push("Do not alter witness statement route.");
-        }
-        if (data.sacredStoryCanon) {
-          lines.push("Do not rewrite story canon.");
-        }
-        if (data.sacredTypingScene) {
-          lines.push("Do not refactor TypingScene unless explicitly asked.");
-        }
-
-        return lines;
-      }
-
-      function joinNonEmptySections(parts, fallback) {
-        var joined = parts.map(function (part) {
-          return escapeText(part);
-        }).filter(Boolean).join("\n");
-
-        return joined || fallback;
-      }
-
-      function buildGuardrailData(data) {
-        var sacredLines = getSacredSystemLines(data);
-        var combinedDangerZone = joinNonEmptySections([
-          data.mustNotTouch,
-          sacredLines.join("\n")
-        ], "No protected files or systems recorded yet.");
-        var combinedStoryConstraints = joinNonEmptySections([
-          data.storyCanonConstraints,
-          sacredLines.filter(function (line) {
-            return /story canon|Mr Fingers|witness statement|ending logic|act progression/i.test(line);
-          }).join("\n")
-        ], "No story or canon constraints recorded.");
-        var combinedTechnicalConstraints = joinNonEmptySections([
-          data.technicalConstraints,
-          sacredLines.filter(function (line) {
-            return /rename assets|TypingScene/i.test(line);
-          }).join("\n")
-        ], "No technical constraints recorded.");
-
+      function getState() {
         return {
-          sacredLines: sacredLines,
-          combinedDangerZone: combinedDangerZone,
-          combinedStoryConstraints: combinedStoryConstraints,
-          combinedTechnicalConstraints: combinedTechnicalConstraints
+          projectName: trimText(stateFields.projectName.value),
+          repoPath: trimText(stateFields.repoPath.value),
+          runCommand: trimText(stateFields.runCommand.value),
+          testCommand: trimText(stateFields.testCommand.value),
+          sacredRules: trimText(stateFields.sacredRules.value),
+          currentTask: trimText(stateFields.currentTask.value)
         };
       }
 
-      function buildTokenDisciplineLines(data) {
-        if (!data.minimiseTokens) {
-          return [];
-        }
-
-        return [
-          "Be concise.",
-          "Avoid printing full files unless asked.",
-          "Inspect only relevant files.",
-          "Summarise findings before editing.",
-          "Avoid repeating context already in the docs.",
-          "Use targeted searches where possible."
-        ];
-      }
-
-      function buildGitDisciplineLines(data) {
-        var lines = [];
-
-        if (data.gitCheckStatusFirst) {
-          lines.push("Check `git status --short` first.");
-        }
-        if (data.gitPullOnlyIfClean) {
-          lines.push("Pull only if the working tree is clean.");
-        }
-        if (data.gitDoNotStash) {
-          lines.push("Do not stash unless asked.");
-        }
-        if (data.gitDoNotCommit) {
-          lines.push("Do not commit unless asked.");
-        }
-        if (data.gitShowChangedFiles) {
-          lines.push("Show changed files after work.");
-        }
-        if (data.gitRunRelevantChecks) {
-          lines.push("Run relevant checks.");
-        }
-        if (data.gitCommitRelatedFilesOnly) {
-          lines.push("Commit related files only.");
-        }
-        if (data.gitShowFinalStatus) {
-          lines.push("Show final git status.");
-        }
-
-        return lines;
-      }
-
-      function buildMasterPrompt(data) {
-        var guardrails = buildGuardrailData(data);
-        var tokenLines = buildTokenDisciplineLines(data);
-        var gitLines = buildGitDisciplineLines(data);
-        var allowsCommit = data.workflowMode === "Commit current work";
-        var allowsPull = data.workflowMode === "Pull latest safely";
-        var promptLines = [
-          "You are helping on " + (escapeText(data.projectName) || "this repository") + ".",
-          "",
-          "Read AGENTS.md, CURRENT_TASK.md, DEV_LOG.md, TEST_ROUTES.md, and HANDOVER.md first if they exist.",
-          "Understand the current task before editing anything.",
-          "Explain progress in simple ELI5 language.",
-          "Touch the smallest number of files.",
-          "Avoid unrelated refactors.",
-          "Respect danger zones.",
-          "Run relevant checks.",
-          "Do not commit unless the selected workflow mode or direct user instruction says to.",
-          "Do not pull unless the selected workflow mode or direct user instruction says to.",
-          "",
-          "Current workflow mode: " + data.workflowMode,
-          "Safety level: " + data.safetyLevel,
-          "Task size limit: " + data.taskSizeLimit,
-          "If the task exceeds the selected size limit, stop and explain before going further."
-        ];
-
-        if (tokenLines.length) {
-          promptLines.push("", "Minimise wasted tokens:");
-          tokenLines.forEach(function (line) {
-            promptLines.push("- " + line);
-          });
-        }
-
-        if (gitLines.length) {
-          promptLines.push("", "Git discipline:");
-          gitLines.forEach(function (line) {
-            promptLines.push("- " + line);
-          });
-        }
-
-        promptLines.push(
-          "",
-          "Danger zones:",
-          guardrails.combinedDangerZone,
-          "",
-          "Story/canon constraints:",
-          guardrails.combinedStoryConstraints,
-          "",
-          "Technical constraints:",
-          guardrails.combinedTechnicalConstraints,
-          "",
-          "Commit permission: " + (allowsCommit ? "Workflow mode allows commit work, but still stay scoped and careful." : "Do not commit unless the user asks."),
-          "Pull permission: " + (allowsPull ? "Workflow mode allows a safe pull flow only if the working tree is clean." : "Do not pull unless the user asks."),
-          ""
-        );
-
-        if (data.safetyLevel === "Very cautious: read-only plan first") {
-          promptLines.push("This is a read-first workflow. Do not edit yet.");
-        } else if (data.safetyLevel === "Normal: plan then small edit") {
-          promptLines.push("Plan first, then make only a small safe edit after the plan is approved.");
-        } else {
-          promptLines.push("Only proceed quickly if the fix is truly obvious and tiny.");
-        }
-
-        promptLines.push(
-          "",
-          "Before editing, return:",
-          "1. Task understanding",
-          "2. Files likely to touch",
-          "3. Risks",
-          "4. Tiny implementation plan"
-        );
-
-        return promptLines.join("\n");
-      }
-
-      function buildCommitAssistantPrompt(data) {
-        return [
-          "Commit Assistant",
-          "",
-          "Review changes only.",
-          "Run `git status --short`.",
-          "Run `git diff --stat`.",
-          "Summarise changed files in simple language.",
-          "Suggest a commit message.",
-          "Wait before committing.",
-          "",
-          "Commit now prompt:",
-          "Commit only related files.",
-          "Show commit hash.",
-          "Show final git status."
-        ].join("\n");
-      }
-
-      function buildSafePullPrompt(data) {
-        return [
-          "Safe Pull Prompt",
-          "",
-          "Run `git status --short` first.",
-          "If the working tree is clean, pull.",
-          "If the working tree is not clean, do not pull.",
-          "Explain whether the next step should be commit, stash, or discard.",
-          "",
-          "Current workflow mode: " + data.workflowMode,
-          "Git notes:",
-          escapeText(data.gitStatusNotes) || "No extra git notes recorded."
-        ].join("\n");
-      }
-
-      function buildFiles(data) {
-        var project = escapeText(data.projectName) || "Project";
-        var projectPath = escapeText(data.projectPath) || "[project path]";
-        var branch = escapeText(data.currentBranch) || "[branch]";
-        var repoUrl = escapeText(data.mainRepoUrl) || "[repo url]";
-        var primaryAgent = escapeText(data.primaryAgent) || "[primary agent]";
-        var nextAgent = escapeText(data.nextAgent) || "[next agent]";
-        var route = escapeText(data.manualBrowserRoute) || "[manual test route or URL]";
-        var rollback = escapeText(data.rollbackInstructions) || "Review diff carefully and revert only the smallest necessary change.";
-        var commitHash = escapeText(data.lastCommitHash) || "[last commit hash]";
-        var guardrails = buildGuardrailData(data);
-        var masterPrompt = buildMasterPrompt(data);
-
-        var files = {};
-
-        files["AGENTS.md"] = [
-          "# AGENTS.md",
-          "",
-          "## Project Overview",
-          "- Project: " + project,
-          "- Path: `" + projectPath + "`",
-          "- Branch: `" + branch + "`",
-          "- Repo: " + repoUrl,
-          "- Primary agent so far: " + primaryAgent,
-          "- Next agent: " + nextAgent,
-          "- Current goal: " + (escapeText(data.currentTaskGoal) || "[fill in current goal]"),
-          "",
-          "## Setup Commands",
-          commandBlock(data.usefulCommands),
-          "",
-          "## Rules For Agents",
-          "- Read this file, `CURRENT_TASK.md`, `DEV_LOG.md`, `TEST_ROUTES.md`, and `HANDOVER.md` before editing anything.",
-          "- Ask/read before guessing. If a file, route, rule, or story detail is unclear, inspect first.",
-          "- Do not rewrite unrelated files.",
-          "- Do not refactor unless explicitly asked.",
-          "- Keep changes scoped to the current task goal.",
-          "- Update `DEV_LOG.md` after changes.",
-          "- Respect story/canon constraints and technical constraints listed below.",
-          "",
-          "## Must-Read Files",
-          bulletsFromText(
-            [data.filesChangedSoFar, data.filesLikelyInvolvedNext].filter(Boolean).join("\n"),
-            "Add the most relevant files, docs, and entry points here."
-          ),
-          "",
-          "## Safe Editing Rules",
-          "- Do not touch these files/areas unless explicitly required:",
-          bulletsFromText(guardrails.combinedDangerZone, "No explicit protected areas listed yet."),
-          "- Story/canon constraints:",
-          bulletsFromText(guardrails.combinedStoryConstraints, "No special story/canon constraints recorded."),
-          "- Technical constraints:",
-          bulletsFromText(guardrails.combinedTechnicalConstraints, "No special technical constraints recorded."),
-          "",
-          "## Testing Rules",
-          "- Run the smallest relevant checks before and after edits.",
-          "- Manual browser test route: `" + route + "`",
-          "- Tests already run:",
-          bulletsFromText(data.testsAlreadyRun, "No tests recorded yet."),
-          "- Tests still needed:",
-          bulletsFromText(data.testsStillNeeded, "Add missing checks before sign-off."),
-          "",
-          "## Git Rules",
-          "- Avoid destructive git commands unless explicitly approved.",
-          "- Review `git status` before editing and before finishing.",
-          "- Preserve unowned local changes.",
-          "- Last known commit: `" + commitHash + "`",
-          "- Git status notes:",
-          bulletsFromText(data.gitStatusNotes, "No extra git notes recorded."),
-          ""
-        ].join("\n");
-
-        files["CURRENT_TASK.md"] = [
-          "# CURRENT_TASK.md",
-          "",
-          "## Goal",
-          quoteBlock(data.currentTaskGoal, "Fill in the current task goal."),
-          "",
-          "## Current Status",
-          quoteBlock(data.currentStatus, "Fill in the current status."),
-          "",
-          "## Exact Next Task",
-          quoteBlock(data.exactNextTask, "Describe the smallest next safe task."),
-          "",
-          "## Files Likely Involved",
-          bulletsFromText(data.filesLikelyInvolvedNext, "Add likely files for the next step."),
-          "",
-          "## Must Not Change",
-          bulletsFromText(guardrails.combinedDangerZone, "No protected files or areas listed yet."),
-          "",
-          "## Acceptance Criteria",
-          bulletsFromText(data.acceptanceCriteria, "Add concrete acceptance criteria."),
-          "",
-          "## Tests To Run",
-          bulletsFromText(data.testsStillNeeded, "Add the checks required before completion."),
-          "",
-          "## Risks",
-          bulletsFromText(data.knownRisks, "Add the risks that could break unrelated work."),
-          ""
-        ].join("\n");
-
-        files["DEV_LOG.md"] = [
-          "# DEV_LOG.md",
-          "",
-          "## Entry Template",
-          "- Date/time: [YYYY-MM-DD HH:MM TZ]",
-          "- Agent name: [Claude / Codex / OpenCode / Manual / Other]",
-          "- Summary of current state: " + (escapeText(data.currentStatus) || "[summarise current state]"),
-          "- Files changed:",
-          bulletsFromText(data.filesChangedSoFar, "List files changed in this session."),
-          "- Tests run:",
-          bulletsFromText(data.testsAlreadyRun, "List tests run in this session."),
-          "- Known issues:",
-          bulletsFromText(data.knownBugs, "List any known issues or unresolved concerns."),
-          "- Next recommended step: " + (escapeText(data.exactNextTask) || "[describe next safe step]"),
-          "",
-          "## Notes",
-          "- Update this file after each meaningful edit pass.",
-          "- Keep entries factual and short.",
-          ""
-        ].join("\n");
-
-        files["TEST_ROUTES.md"] = [
-          "# TEST_ROUTES.md",
-          "",
-          "## Browser Route / URL",
-          "- Primary manual route: `" + route + "`",
-          "",
-          "## Manual Test Checklist",
-          bulletsFromText(data.testsStillNeeded, "List the manual flows that should be checked."),
-          "",
-          "## Regression Checklist",
-          bulletsFromText(data.testsAlreadyRun, "List known stable checks to repeat after edits."),
-          "",
-          "## Sacred Checks",
-          "- The main route or scenario above still loads without console-breaking errors.",
-          "- Existing work outside the current task still behaves the same.",
-          "- Protected files/areas remain untouched unless explicitly approved.",
-          "- Story/canon and naming constraints still hold.",
-          "- Git diff stays scoped to the intended task.",
-          ""
-        ].join("\n");
-
-        files["HANDOVER.md"] = [
-          "# HANDOVER.md",
-          "",
-          "## Plain English Handover",
-          "This work is being handed from " + primaryAgent + " to " + nextAgent + " on `" + branch + "` for **" + project + "**.",
-          "",
-          "## What Changed",
-          bulletsFromText(data.filesChangedSoFar, "Document the files or areas changed so far."),
-          "",
-          "## Why It Changed",
-          quoteBlock(data.currentTaskGoal, "Explain why the current work exists."),
-          "",
-          "## What Not To Break",
-          bulletsFromText(
-            [guardrails.combinedDangerZone, guardrails.combinedStoryConstraints, guardrails.combinedTechnicalConstraints].filter(Boolean).join("\n"),
-            "Document fragile systems, story rules, and technical boundaries."
-          ),
-          "",
-          "## What To Do Next",
-          quoteBlock(data.exactNextTask, "Describe the smallest next safe task."),
-          "",
-          "## How To Verify",
-          "- Route: `" + route + "`",
-          "- Tests already run:",
-          bulletsFromText(data.testsAlreadyRun, "No completed checks recorded yet."),
-          "- Tests still needed:",
-          bulletsFromText(data.testsStillNeeded, "Add remaining verification steps."),
-          "",
-          "## Rollback Plan",
-          "- Last known commit: `" + commitHash + "`",
-          "- Rollback instructions: " + rollback,
-          "- Git status notes:",
-          bulletsFromText(data.gitStatusNotes, "No extra git state notes recorded."),
-          ""
-        ].join("\n");
-
-        files["ONE_SHOT_AGENT_PROMPT.md"] = [
-          "# ONE_SHOT_AGENT_PROMPT.md",
-          "",
-          "## Read-Only First Prompt",
-          "Use this prompt for the next agent before allowing edits:",
-          "",
-          "```text",
-          "You are taking over work on " + project + ".",
-          "",
-          "Before doing anything else:",
-          "1. Read AGENTS.md, CURRENT_TASK.md, DEV_LOG.md, TEST_ROUTES.md, and HANDOVER.md first.",
-          "2. Do not edit yet.",
-          "3. Summarise your understanding of the project, current task, current state, and exact next step.",
-          "4. Identify risks, unknowns, and anything that could damage existing work.",
-          "5. Propose a small safe plan with the minimum necessary change.",
-          "6. Wait for permission before editing.",
-          "",
-          "Extra context:",
-          "- Project path: " + projectPath,
-          "- Branch: " + branch,
-          "- Primary agent so far: " + primaryAgent,
-          "- Next agent target: " + nextAgent,
-          "- Must not touch: " + guardrails.combinedDangerZone,
-          "- Current goal: " + (escapeText(data.currentTaskGoal) || "[see CURRENT_TASK.md]"),
-          "```",
-          "",
-          "## Proceed Prompt",
-          "Use this only after the summary and plan are approved:",
-          "",
-          "```text",
-          "Proceed with the smallest safe change only.",
-          "",
-          "Rules:",
-          "1. Re-read AGENTS.md and CURRENT_TASK.md before editing.",
-          "2. Keep scope tight to the approved next task.",
-          "3. Do not rewrite unrelated files.",
-          "4. Do not refactor unless explicitly asked.",
-          "5. Preserve story/canon, naming, and technical constraints.",
-          "6. Run the smallest relevant checks.",
-          "7. Update DEV_LOG.md with what changed, tests run, and next recommended step.",
-          "8. Report exactly what you changed, any risks left, and how to verify.",
-          "```",
-          ""
-        ].join("\n");
-
-        files["MASTER_AGENT_PROMPT.md"] = [
-          "# MASTER_AGENT_PROMPT.md",
-          "",
-          "```text",
-          masterPrompt,
-          "```",
-          ""
-        ].join("\n");
-
-        files["RUNBOOK_FOR_MURPHY.md"] = [
-          "# RUNBOOK_FOR_MURPHY.md",
-          "",
-          "## What This Pack Does",
-          "This pack helps you safely move work between Claude, Codex, and OpenCode.",
-          "It gives the next agent the right docs to read first so it does not guess, wander, or break unrelated work.",
-          "",
-          "## Start A Work Session",
-          "1. Open the repo.",
-          "2. Ask the agent to generate Agent Fill JSON.",
-          "3. Import it into this tool.",
-          "4. Review the form.",
-          "5. Choose workflow mode, safety level, token-saving, and task size limit.",
-          "6. Copy `MASTER_AGENT_PROMPT.md`.",
-          "7. Paste it into the coding agent.",
-          "",
-          "## Before Letting The Agent Edit",
-          "The agent should read the docs first.",
-          "It should explain the task, likely files, risks, and tiny plan.",
-          "Do not let it proceed if it misunderstands.",
-          "",
-          "## During Work",
-          "Ask for small changes.",
-          "Avoid big refactors.",
-          "Keep progress updates simple.",
-          "Stop if more files are needed than the selected task size limit.",
-          "",
-          "## After Work",
-          "1. Run checks.",
-          "2. Ask the agent to update `DEV_LOG.md`.",
-          "3. Use the Commit Assistant prompt.",
-          "4. Review changed files.",
-          "5. Commit only related files.",
-          "",
-          "## Pulling Safely",
-          "Use the Safe Pull Prompt.",
-          "Pull only when the working tree is clean.",
-          "If it is not clean, commit, stash, or discard deliberately.",
-          "",
-          "## Switching Agents",
-          "1. Regenerate handover docs.",
-          "2. Commit docs.",
-          "3. Start the next agent with `MASTER_AGENT_PROMPT.md`.",
-          "4. Make it read first, plan first, edit second.",
-          "",
-          "## Emergency Rollback",
-          "Use `git status`.",
-          "Use `git diff`.",
-          "If the work is already committed, use `git log --oneline`.",
-          "Do not panic-delete files like a Victorian ghost with a keyboard.",
-          ""
-        ].join("\n");
-
-        return files;
-      }
-
-      function buildTermuxCommands(files) {
-        var chunks = fileOrder.map(function (fileName) {
-          return [
-            "cat > " + fileName + " <<'EOF'",
-            files[fileName],
-            "EOF"
-          ].join("\n");
+      function setState(nextState) {
+        Object.keys(stateFields).forEach(function (key) {
+          if (Object.prototype.hasOwnProperty.call(nextState, key)) {
+            stateFields[key].value = nextState[key] || "";
+          }
         });
-
-        chunks.push("git status --short");
-        chunks.push("git add AGENTS.md CURRENT_TASK.md DEV_LOG.md TEST_ROUTES.md HANDOVER.md ONE_SHOT_AGENT_PROMPT.md MASTER_AGENT_PROMPT.md RUNBOOK_FOR_MURPHY.md");
-        chunks.push("git commit -m \"Add agent handover docs\"");
-
-        return chunks.join("\n\n");
       }
 
-      function buildExportJson() {
-        var data = getFormData();
-
-        return JSON.stringify({
-          projectName: data.projectName,
-          projectPath: data.projectPath,
-          currentBranch: data.currentBranch,
-          mainRepoUrl: data.mainRepoUrl,
-          primaryAgent: data.primaryAgent,
-          nextAgent: data.nextAgent,
-          currentTaskGoal: data.currentTaskGoal,
-          currentStatus: data.currentStatus,
-          filesChangedSoFar: data.filesChangedSoFar,
-          filesLikelyInvolvedNext: data.filesLikelyInvolvedNext,
-          dangerZone: data.mustNotTouch,
-          storyCanonConstraints: data.storyCanonConstraints,
-          technicalConstraints: data.technicalConstraints,
-          knownRisks: data.knownRisks,
-          knownBugs: data.knownBugs,
-          testsAlreadyRun: data.testsAlreadyRun,
-          testsStillNeeded: data.testsStillNeeded,
-          manualBrowserTestRoute: data.manualBrowserRoute,
-          exactNextTask: data.exactNextTask,
-          acceptanceCriteria: data.acceptanceCriteria,
-          usefulCommands: data.usefulCommands,
-          gitStatusNotes: data.gitStatusNotes,
-          lastCommitHash: data.lastCommitHash,
-          rollbackInstructions: data.rollbackInstructions,
-          additionalNotes: data.additionalNotes
-        }, null, 2);
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+        } catch (error) {
+          // Ignore storage failures so typing stays smooth.
+        }
       }
 
-      function importAgentFillJson() {
-        var raw = agentFillJson.value.trim();
-        var parsed;
-        var updates = {};
-        var filledFields = [];
+      function loadState() {
+        var raw = "";
+
+        try {
+          raw = localStorage.getItem(STORAGE_KEY);
+        } catch (error) {
+          raw = "";
+        }
 
         if (!raw) {
-          setImportStatus("Paste JSON first.", true);
+          renderPreviews();
           return;
         }
 
         try {
-          parsed = JSON.parse(raw);
+          setState(JSON.parse(raw) || {});
         } catch (error) {
-          setImportStatus("Invalid JSON. Paste raw JSON only, with no markdown fences.", true);
-          return;
+          setStatus("Saved prompt context could not be read.");
         }
 
-        if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
-          setImportStatus("JSON must be one object with field names and values.", true);
-          return;
-        }
-
-        Object.keys(parsed).forEach(function (key) {
-          var fieldName = normalizeImportKey(key);
-          if (!fieldName) {
-            return;
-          }
-
-          if (!Object.prototype.hasOwnProperty.call(parsed, key)) {
-            return;
-          }
-
-          if (parsed[key] === undefined) {
-            return;
-          }
-
-          updates[fieldName] = parsed[key] === null ? "" : String(parsed[key]);
-          filledFields.push(fieldName);
-        });
-
-        if (!filledFields.length) {
-          setImportStatus("No matching fields were found in the JSON.", true);
-          return;
-        }
-
-        setFormData(updates);
-        saveForm();
-        renderOutputs();
-        setImportStatus("Imported fields: " + filledFields.join(", "), false);
-      }
-
-      function renderOutputs() {
-        var data = getFormData();
-        var files = buildFiles(data);
-        var termuxCommands = buildTermuxCommands(files);
-        var commitAssistantPrompt = buildCommitAssistantPrompt(data);
-        var safePullPrompt = buildSafePullPrompt(data);
-        outputs.innerHTML = "";
-        termuxOutput.value = termuxCommands;
-        agentPromptOutput.value = agentFillPrompt;
-        commitAssistantOutput.value = commitAssistantPrompt;
-        safePullOutput.value = safePullPrompt;
-
-        fileOrder.forEach(function (fileName) {
-          var card = document.createElement("section");
-          card.className = "file-card";
-
-          var header = document.createElement("div");
-          header.className = "file-head";
-
-          var label = document.createElement("div");
-          label.className = "file-name";
-          label.textContent = fileName;
-
-          var actions = document.createElement("div");
-          actions.className = "file-actions";
-
-          var copyButton = document.createElement("button");
-          copyButton.type = "button";
-          copyButton.textContent = "Copy";
-          copyButton.addEventListener("click", function () {
-            copyText(files[fileName], fileName + " copied.");
-          });
-
-          var downloadButton = document.createElement("button");
-          downloadButton.type = "button";
-          downloadButton.textContent = "Download";
-          downloadButton.addEventListener("click", function () {
-            downloadFile(fileName, files[fileName]);
-          });
-
-          actions.appendChild(copyButton);
-          actions.appendChild(downloadButton);
-          header.appendChild(label);
-          header.appendChild(actions);
-
-          var textarea = document.createElement("textarea");
-          textarea.readOnly = true;
-          textarea.value = files[fileName];
-
-          card.appendChild(header);
-          card.appendChild(textarea);
-          outputs.appendChild(card);
-        });
+        renderPreviews();
       }
 
       function setStatus(message) {
@@ -2246,7 +603,162 @@
         }, 2400);
       }
 
-      function fallbackCopy(text, successMessage) {
+      function bulletBlock(value, fallback) {
+        var lines = trimText(value)
+          .split("\n")
+          .map(function (line) {
+            return line.trim();
+          })
+          .filter(Boolean);
+
+        if (!lines.length) {
+          return fallback ? "- " + fallback : "";
+        }
+
+        return lines.map(function (line) {
+          return "- " + line.replace(/^-+\s*/, "");
+        }).join("\n");
+      }
+
+      function contextBlock(data) {
+        var lines = [];
+
+        if (data.projectName) {
+          lines.push("Project: " + data.projectName);
+        }
+        if (data.repoPath) {
+          lines.push("Repo path: " + data.repoPath);
+        }
+        if (data.runCommand) {
+          lines.push("Run command: " + data.runCommand);
+        }
+        if (data.testCommand) {
+          lines.push("Test command: " + data.testCommand);
+        }
+        if (data.currentTask) {
+          lines.push("Current task: " + data.currentTask);
+        }
+        if (data.sacredRules) {
+          lines.push("Sacred rules / danger zone:");
+          lines.push(bulletBlock(data.sacredRules, "No extra sacred rules listed."));
+        }
+
+        if (!lines.length) {
+          return "";
+        }
+
+        return [
+          "Repo context:",
+          lines.join("\n"),
+          ""
+        ].join("\n");
+      }
+
+      function buildReadPrompt(data) {
+        var context = contextBlock(data);
+
+        return [
+          "You are helping in this repository.",
+          context,
+          "Do not edit files yet.",
+          "Read these docs first if they exist:",
+          DOCS_TO_READ.join(", "),
+          "Check `git status`.",
+          "Check recent commits.",
+          "Inspect relevant source files only if needed.",
+          "Summarise:",
+          "1. what this project is",
+          "2. current task/status",
+          "3. important files",
+          "4. danger zones / sacred systems",
+          "5. git status",
+          "6. smallest safe next step",
+          "Be concise and ELI5.",
+          "Do not print full files unless necessary."
+        ].filter(Boolean).join("\n");
+      }
+
+      function buildContinuePrompt(data) {
+        var context = contextBlock(data);
+
+        return [
+          "Continue from the current repo state.",
+          context,
+          "Before editing, summarise your understanding.",
+          "List the exact files you expect to touch.",
+          "Explain the risks.",
+          "Give a tiny plan.",
+          "Wait for approval before editing.",
+          "Make the smallest safe change.",
+          "Do not refactor unless explicitly asked.",
+          "Do not touch unrelated files.",
+          "Do not commit unless asked.",
+          "Update `DEV_LOG.md` if changes are made.",
+          "Keep updates concise and ELI5."
+        ].filter(Boolean).join("\n");
+      }
+
+      function buildGitPrompt(data) {
+        var context = contextBlock(data);
+
+        return [
+          "Do not edit source code.",
+          context,
+          "Run `git status --short`.",
+          "Run `git diff --stat`.",
+          "Run `git log --oneline -5`.",
+          "Summarise changed files.",
+          "Identify unrelated or suspicious files.",
+          "Suggest a commit message.",
+          "Wait for approval before committing.",
+          "If approved:",
+          "- git add only related files",
+          "- git commit with the approved message",
+          "- git pull only if safe",
+          "- git push",
+          "- show final git status"
+        ].filter(Boolean).join("\n");
+      }
+
+      function buildWrapPrompt(data) {
+        var context = contextBlock(data);
+
+        return [
+          "Stop starting new work.",
+          context,
+          "Do not edit source code except docs/logs needed for wrap-up.",
+          "Summarise what changed.",
+          "Update `DEV_LOG.md`.",
+          "Update `CURRENT_TASK.md` or `TODO.md` with the next step.",
+          "Update project context only if the project direction changed.",
+          "Run relevant checks if not already run.",
+          "Show `git status --short` and `git diff --stat`.",
+          "Suggest a commit message.",
+          "Do not commit until approved.",
+          "Keep it concise and ELI5."
+        ].filter(Boolean).join("\n");
+      }
+
+      function buildPrompts() {
+        var data = getState();
+
+        return {
+          read: buildReadPrompt(data),
+          continue: buildContinuePrompt(data),
+          git: buildGitPrompt(data),
+          wrap: buildWrapPrompt(data)
+        };
+      }
+
+      function renderPreviews() {
+        var prompts = buildPrompts();
+        previewNodes.read.value = prompts.read;
+        previewNodes.continue.value = prompts.continue;
+        previewNodes.git.value = prompts.git;
+        previewNodes.wrap.value = prompts.wrap;
+      }
+
+      function fallbackCopy(text, message) {
         var helper = document.createElement("textarea");
         helper.value = text;
         helper.setAttribute("readonly", "readonly");
@@ -2259,7 +771,7 @@
 
         try {
           document.execCommand("copy");
-          setStatus(successMessage);
+          setStatus(message);
         } catch (error) {
           setStatus("Copy failed in this browser.");
         }
@@ -2267,190 +779,93 @@
         document.body.removeChild(helper);
       }
 
-      function copyText(text, successMessage) {
+      function copyText(text, message) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(function () {
-            setStatus(successMessage);
+            setStatus(message);
           }).catch(function () {
-            fallbackCopy(text, successMessage);
+            fallbackCopy(text, message);
           });
           return;
         }
 
-        fallbackCopy(text, successMessage);
+        fallbackCopy(text, message);
       }
 
-      function downloadFile(fileName, content) {
-        var blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
-        var url = URL.createObjectURL(blob);
-        var link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        setStatus(fileName + " downloaded.");
+      function copyPrompt(name) {
+        var prompts = buildPrompts();
+        var labelMap = {
+          read: "Read Repo & Get Up To Date",
+          continue: "Continue Safely",
+          git: "Git Commit / Push Safely",
+          wrap: "Wrap Up Session"
+        };
+        copyText(prompts[name], labelMap[name] + " copied.");
       }
 
-      function copyAllFiles() {
-        var files = buildFiles(getFormData());
-        var combined = fileOrder.map(function (fileName) {
-          return "# FILE: " + fileName + "\n\n" + files[fileName];
-        }).join("\n\n---\n\n");
-        copyText(combined, "All generated files copied.");
+      function copyAllPrompts() {
+        var prompts = buildPrompts();
+        var combined = [
+          "### 1. Read Repo & Get Up To Date",
+          "```text",
+          prompts.read,
+          "```",
+          "",
+          "### 2. Continue Safely",
+          "```text",
+          prompts.continue,
+          "```",
+          "",
+          "### 3. Git Commit / Push Safely",
+          "```text",
+          prompts.git,
+          "```",
+          "",
+          "### 4. Wrap Up Session",
+          "```text",
+          prompts.wrap,
+          "```"
+        ].join("\n");
+
+        copyText(combined, "All prompts copied.");
       }
 
-      function copyOneShotPrompt() {
-        var files = buildFiles(getFormData());
-        copyText(files["ONE_SHOT_AGENT_PROMPT.md"], "ONE_SHOT_AGENT_PROMPT.md copied.");
-      }
-
-      function copyMasterPrompt() {
-        var files = buildFiles(getFormData());
-        copyText(files["MASTER_AGENT_PROMPT.md"], "MASTER_AGENT_PROMPT.md copied.");
-      }
-
-      function copyRunbook() {
-        var files = buildFiles(getFormData());
-        copyText(files["RUNBOOK_FOR_MURPHY.md"], "RUNBOOK_FOR_MURPHY.md copied.");
-      }
-
-      function copyAllTermuxCommands() {
-        var files = buildFiles(getFormData());
-        copyText(buildTermuxCommands(files), "All Termux save commands copied.");
-      }
-
-      function copyCommitAssistantPrompt() {
-        copyText(buildCommitAssistantPrompt(getFormData()), "Commit Assistant prompt copied.");
-      }
-
-      function copySafePullPrompt() {
-        copyText(buildSafePullPrompt(getFormData()), "Safe Pull prompt copied.");
-      }
-
-      function copyAgentFillPrompt() {
-        copyText(agentFillPrompt, "Agent Fill Prompt copied.");
-      }
-
-      function exportCurrentFormJson() {
-        copyText(buildExportJson(), "Current form exported as JSON.");
-      }
-
-      function loadSampleAgentFillJson() {
-        agentFillJson.value = sampleAgentFillJson;
-        setImportStatus("Sample HOME ROW Agent Fill JSON loaded.", false);
-      }
-
-      function downloadAllFiles() {
-        var files = buildFiles(getFormData());
-        fileOrder.forEach(function (fileName, index) {
-          window.setTimeout(function () {
-            downloadFile(fileName, files[fileName]);
-          }, index * 180);
+      function resetAdvancedOptions() {
+        setState({
+          projectName: "",
+          repoPath: "",
+          runCommand: "",
+          testCommand: "",
+          sacredRules: "",
+          currentTask: ""
         });
-        setStatus("Starting separate downloads for all files.");
-      }
-
-      function loadHomeRowExample() {
-        setFormData({
-          projectName: "HOME ROW",
-          projectPath: "/Users/jamesmurphy/Desktop/Home Row",
-          currentBranch: "main",
-          mainRepoUrl: "https://github.com/example/home-row",
-          primaryAgent: "Claude",
-          nextAgent: "OpenCode",
-          currentTaskGoal: "Safely continue work on a story-aware horror typing tutor game without losing narrative logic, route state, or agent context during handover.",
-          currentStatus: "A previous agent has already been working in the repo. Handover notes are needed before any new edits so the next agent understands current scope, fragile areas, and how to avoid damaging existing work.",
-          filesChangedSoFar: "src/main.js\nsrc/scenes/TypingScene.js\nREADME notes or local working notes\nAny temporary handover scratch notes from Claude/OpenCode sessions",
-          filesLikelyInvolvedNext: "src/main.js\nsrc/scenes/TypingScene.js\nstory progression config files\nroute/state handling for witness statement progression",
-          mustNotTouch: "Ending logic unless explicitly requested\nAct progression sequencing\nWitness statement route branching\nUnrelated art, audio, and build output\nAny unrelated files already modified by another agent",
-          storyCanonConstraints: "Preserve Mr Fingers sprite naming\nPreserve act progression and witness statement route\nDo not change the ending logic unless explicitly requested\nMaintain the story-aware horror tone and existing narrative beats",
-          technicalConstraints: "Keep changes small and local\nDo not refactor unless explicitly requested\nClaude/OpenCode/Codex handovers must avoid destructive git actions\nRead existing files before guessing behaviour\nDo not rewrite unrelated files",
-          knownRisks: "Breaking ending logic by touching the wrong route code\nAccidentally renaming Mr Fingers sprite references\nDamaging act progression or witness statement flow\nA new agent making broad edits without understanding existing local changes",
-          knownBugs: "Potential uncertainty around scene transition edges\nPossible fragile route/state logic if touched indirectly",
-          testsAlreadyRun: "node --check src/main.js\nnode --check src/scenes/TypingScene.js\ngit status --short reviewed manually",
-          testsStillNeeded: "Run manual browser test of the main typing flow\nVerify act progression still advances correctly\nVerify witness statement route still works\nConfirm ending logic remains untouched unless required",
-          manualBrowserRoute: "http://127.0.0.1:8000/",
-          exactNextTask: "Read the handover docs first, inspect the likely scene and progression files, summarise understanding, identify risks, and wait for approval before making the smallest safe change.",
-          acceptanceCriteria: "Next agent can accurately summarise the state before editing\nProtected story logic is explicitly acknowledged\nOnly the smallest safe change is proposed\nVerification steps are clear and scoped",
-          usefulCommands: "cd \"/Users/jamesmurphy/Desktop/Home Row\"\npython3 -m http.server 8000\nnode --check src/main.js\nnode --check src/scenes/TypingScene.js\ngit status --short",
-          gitStatusNotes: "Assume the worktree may already be dirty.\nDo not revert Claude/OpenCode changes you do not own.\nInspect diff carefully before touching route or ending files.",
-          lastCommitHash: "HEAD",
-          rollbackInstructions: "Use git diff to isolate changes and revert only the smallest safe set. Avoid reset --hard unless explicitly approved.",
-          additionalNotes: "This template is intentionally tuned for Claude/OpenCode handover safety. New agents should read first, summarise, identify risks, and wait before editing."
-          ,
-          workflowMode: "Continue unfinished task",
-          safetyLevel: "Very cautious: read-only plan first",
-          taskSizeLimit: "Small: 1-3 files",
-          minimiseTokens: true,
-          gitCheckStatusFirst: true,
-          gitPullOnlyIfClean: true,
-          gitDoNotStash: true,
-          gitDoNotCommit: true,
-          gitShowChangedFiles: true,
-          gitRunRelevantChecks: true,
-          gitCommitRelatedFilesOnly: true,
-          gitShowFinalStatus: true,
-          sacredEndingLogic: true,
-          sacredActProgression: true,
-          sacredRenameAssets: true,
-          sacredMrFingersFilenames: true,
-          sacredWitnessStatement: true,
-          sacredStoryCanon: true,
-          sacredTypingScene: true
-        });
-        saveForm();
-        renderOutputs();
-        setStatus("HOME ROW example loaded.");
-      }
-
-      form.addEventListener("input", function () {
-        saveForm();
-        renderOutputs();
-      });
-
-      beginnerMode.addEventListener("change", function () {
-        applyBeginnerMode();
-        saveForm();
-        renderOutputs();
-      });
-
-      loadExampleBtn.addEventListener("click", loadHomeRowExample);
-      copyAllBtn.addEventListener("click", copyAllFiles);
-      copyPromptBtn.addEventListener("click", copyOneShotPrompt);
-      downloadAllBtn.addEventListener("click", downloadAllFiles);
-      copyTermuxBtn.addEventListener("click", copyAllTermuxCommands);
-      copyMasterPromptBtn.addEventListener("click", copyMasterPrompt);
-      copyRunbookBtn.addEventListener("click", copyRunbook);
-      copyCommitAssistantBtn.addEventListener("click", copyCommitAssistantPrompt);
-      copySafePullBtn.addEventListener("click", copySafePullPrompt);
-      copyCommitAssistantCardBtn.addEventListener("click", copyCommitAssistantPrompt);
-      copySafePullCardBtn.addEventListener("click", copySafePullPrompt);
-      copyTermuxCardBtn.addEventListener("click", copyAllTermuxCommands);
-      importJsonBtn.addEventListener("click", importAgentFillJson);
-      loadSampleJsonBtn.addEventListener("click", loadSampleAgentFillJson);
-      copyAgentPromptBtn.addEventListener("click", copyAgentFillPrompt);
-      clearImportBtn.addEventListener("click", function () {
-        agentFillJson.value = "";
-        setImportStatus("Import box cleared.", false);
-      });
-      exportJsonBtn.addEventListener("click", exportCurrentFormJson);
-      clearBtn.addEventListener("click", function () {
-        if (!window.confirm("Clear the entire form and remove saved local data?")) {
-          return;
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          // Ignore storage errors during reset.
         }
-        form.reset();
-        beginnerMode.checked = defaultBeginnerMode;
-        applyBeginnerMode();
-        localStorage.removeItem(STORAGE_KEY);
-        agentFillJson.value = "";
-        setImportStatus("", false);
-        renderOutputs();
-        setStatus("Form cleared.");
+        renderPreviews();
+        setStatus("Advanced options reset.");
+      }
+
+      Object.keys(stateFields).forEach(function (key) {
+        stateFields[key].addEventListener("input", function () {
+          saveState();
+          renderPreviews();
+        });
       });
 
-      loadSavedForm();
+      copyButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          copyPrompt(button.getAttribute("data-copy"));
+        });
+      });
+
+      copyAllBtn.addEventListener("click", copyAllPrompts);
+      resetAdvancedBtn.addEventListener("click", resetAdvancedOptions);
+
+      loadState();
+      renderPreviews();
     }());
   </script>
 </body>
